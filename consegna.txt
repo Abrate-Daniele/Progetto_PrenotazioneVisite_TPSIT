@@ -1,0 +1,37 @@
+Gestione CUP sanitario
+
+Gestire visite programmate per giorno (lunedi - venerdi),visite divise per reparto,visite dall 9 alle 17 con ogni ora 1 singola visita.
+
+La scelta dell’orario è in base a ciò che vuole il cliente,mostrandoli i buchi liberi selezionabili.
+
+Salvo tutto nel db,e gestione profilatura cliente.
+
+2 tipi di utenti
+
+Profilo utente - vede i posti liberi e può prenotare e cancellare prenotazioni
+
+Profilo amministratore - vede tutte le prenotazioni con informazioni utenti, e potrà modificarle tutte (es. spostarle di data)(viene mostrata la modifica all’utente base della modifica).
+
+Dopo la prenotazione l’utente potrà pagarla/modificarla/annuarla, e deve potere vedere sia lui l’amministratore se è da pagare con visualizzazione differente.
+
+Reparti:
+
+Cardiologia
+
+Oculistica
+
+Ortopedia
+
+Pediatria
+
+Chirurgia
+
+Ispirazionale
+
+Questa è la base, ogni cosa in più e come farla possiamo decidere noi e fare noi, questo e solo il cuore del progetto, va fatta un'analisi e bisogna metterci del nostro, abbiamo carta bianca, pensando a tutte le varie sfaccettature che ci possono essere. (es. tipo di pagamento, suddivisione per medico, etc…)
+
+La grafica deve essere funzionale, decente e ben gestita.
+
+Possibilità di lavorare(max coppie)
+
+Ci si può mettere in coppie dividendosi in client e server
