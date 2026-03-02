@@ -1,1 +1,96 @@
-<p>login works!</p>
+<div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+  <div class="card shadow-lg" style="width: 100%; max-width: 500px;">
+    <div class="card-body p-5">
+      <!-- Logo -->
+      <div class="text-center mb-4">
+        <h1 class="h3 fw-bold text-primary">CUP</h1>
+        <p class="text-muted small">Clinica Unica Prenotazioni</p>
+      </div>
+
+      <!-- Login Mode -->
+      <div *ngIf="isLoginMode()">
+        <h4 class="mb-4 fw-bold">Accedi</h4>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold">Ruolo</label>
+          <select class="form-select" [(ngModel)]="selectedRole">
+            <option value="paziente">Paziente</option>
+            <option value="medico">Medico</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold">Email</label>
+          <input type="email" class="form-control" [(ngModel)]="loginEmail" placeholder="email@example.com" />
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label fw-bold">Password</label>
+          <input type="password" class="form-control" [(ngModel)]="loginPassword" placeholder="Inserisci password" />
+        </div>
+
+        <button class="btn btn-primary w-100 mb-3" (click)="login()">Accedi</button>
+
+        <div class="text-center">
+          <p class="text-muted small">
+            Non hai un account?
+            <button class="btn btn-link btn-sm p-0 text-decoration-none" (click)="toggleMode()">
+              Registrati
+            </button>
+          </p>
+        </div>
+      </div>
+
+      <!-- Register Mode -->
+      <div *ngIf="!isLoginMode()">
+        <h4 class="mb-4 fw-bold">Registrazione</h4>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold">Nome</label>
+          <input type="text" class="form-control" [(ngModel)]="regNome" placeholder="Nome" />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold">Cognome</label>
+          <input type="text" class="form-control" [(ngModel)]="regCognome" placeholder="Cognome" />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold">Ruolo</label>
+          <select class="form-select" [(ngModel)]="regRole">
+            <option value="paziente">Paziente</option>
+            <option value="medico">Medico</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold">Email</label>
+          <input type="email" class="form-control" [(ngModel)]="regEmail" placeholder="email@example.com" />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold">Password</label>
+          <input type="password" class="form-control" [(ngModel)]="regPassword" placeholder="Inserisci password" />
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label fw-bold">Conferma Password</label>
+          <input type="password" class="form-control" [(ngModel)]="regConfirmPassword" placeholder="Conferma password" />
+        </div>
+
+        <button class="btn btn-success w-100 mb-3" (click)="register()">Registrati</button>
+
+        <div class="text-center">
+          <p class="text-muted small">
+            Hai già un account?
+            <button class="btn btn-link btn-sm p-0 text-decoration-none" (click)="toggleMode()">
+              Accedi
+            </button>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

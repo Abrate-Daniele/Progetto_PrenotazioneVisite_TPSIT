@@ -1,0 +1,16 @@
+/* Stile CSS del componente dettaglio visita */
+.card {
+  border: none;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.card-header {
+  border-radius: 8px 8px 0 0 !important;
+  font-weight: 600;
+}
+
+textarea.form-control {
+  resize: vertical;
+  min-height: 100px;
+}

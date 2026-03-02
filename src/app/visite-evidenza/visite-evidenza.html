@@ -1,1 +1,42 @@
-<p>visite-evidenza works!</p>
+<div class="card">
+  <div class="card-header bg-warning">
+    <h5 class="mb-0">Visite in Evidenza (Da Pagare)</h5>
+  </div>
+
+  <div class="card-body">
+    <!-- Tabella visite -->
+    <div *ngIf="visiteDaPagare().length > 0" style="overflow-x: auto;">
+      <table class="table table-striped table-hover">
+        <thead class="table-light">
+          <tr>
+            <th>Data</th>
+            <th>Ora</th>
+            <th>Medico</th>
+            <th>Reparto</th>
+            <th>Importo</th>
+            <th>Azione</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let visita of visiteDaPagare()">
+            <td>{{ formatDate(visita.dataInizio) }}</td>
+            <td>{{ formatTime(visita.dataInizio) }} - {{ formatTime(visita.dataFine) }}</td>
+            <td>Dr. {{ visita.medicoNome }} {{ visita.medicoCognome }}</td>
+            <td>{{ visita.reparto }}</td>
+            <td class="fw-bold">€ {{ visita.importo }}</td>
+            <td>
+              <button class="btn btn-sm btn-success" (click)="pagaVisita(visita)">
+                Paga
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Messaggio vuoto -->
+    <div *ngIf="visiteDaPagare().length === 0" class="alert alert-info mb-0">
+      <i class="bi bi-info-circle"></i> Non hai visite da pagare
+    </div>
+  </div>
+</div>

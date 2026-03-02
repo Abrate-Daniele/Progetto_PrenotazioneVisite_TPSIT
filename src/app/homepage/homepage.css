@@ -1,0 +1,13 @@
+/* Stile CSS della homepage */
+.min-vh-100 {
+  min-height: 100vh;
+}
+
+.modal.d-block {
+  display: block !important;
+  z-index: 1040;
+}
+
+.modal-dialog {
+  max-width: 500px;
+}

@@ -1,1 +1,70 @@
-<p>user works!</p>
+<div class="card">
+  <div class="card-header bg-primary text-white">
+    <h5 class="mb-0">Il Mio Profilo</h5>
+  </div>
+  <div class="card-body">
+    <div *ngIf="user() && !isEditing()">
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <p class="text-muted small">Nome</p>
+          <p class="fw-bold">{{ user()?.nome }}</p>
+        </div>
+        <div class="col-md-6">
+          <p class="text-muted small">Cognome</p>
+          <p class="fw-bold">{{ user()?.cognome }}</p>
+        </div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <p class="text-muted small">Email</p>
+          <p class="fw-bold">{{ user()?.email }}</p>
+        </div>
+        <div class="col-md-6">
+          <p class="text-muted small">Telefono</p>
+          <p class="fw-bold">{{ user()?.telefono }}</p>
+        </div>
+      </div>
+
+      <div class="row mb-3" *ngIf="user()?.role === 'medico'">
+        <div class="col-md-12">
+          <p class="text-muted small">Reparto</p>
+          <p class="fw-bold">{{ user()?.reparto }}</p>
+        </div>
+      </div>
+
+      <button class="btn btn-warning btn-sm" (click)="toggleEdit()">
+        <i class="bi bi-pencil"></i> Modifica
+      </button>
+    </div>
+
+    <div *ngIf="isEditing()">
+      <div class="mb-3">
+        <label class="form-label fw-bold">Nome</label>
+        <input type="text" class="form-control" [(ngModel)]="nome" />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label fw-bold">Cognome</label>
+        <input type="text" class="form-control" [(ngModel)]="cognome" />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label fw-bold">Email</label>
+        <input type="email" class="form-control" [(ngModel)]="email" />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label fw-bold">Telefono</label>
+        <input type="text" class="form-control" [(ngModel)]="telefono" />
+      </div>
+
+      <button class="btn btn-success btn-sm me-2" (click)="saveChanges()">
+        Salva
+      </button>
+      <button class="btn btn-secondary btn-sm" (click)="cancelEdit()">
+        Annulla
+      </button>
+    </div>
+  </div>
+</div>

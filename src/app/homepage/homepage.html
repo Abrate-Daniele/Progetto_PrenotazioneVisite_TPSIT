@@ -1,1 +1,122 @@
-<p>homepage works!</p>
+<div style="background-color: #f8f9fa; padding: 2rem 0;">
+  <!-- Main content -->
+  <div class="container-fluid">
+    <!-- PAZIENTE -->
+    <div *ngIf="userRole() === 'paziente'">
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <h2 class="mb-4">Dashboard Paziente</h2>
+        </div>
+      </div>
+
+      <!-- Sezione Profilo -->
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <app-user></app-user>
+        </div>
+      </div>
+
+      <!-- Sezione Calendario -->
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <app-calendario [visite]="visitaCalendario()" (visitaClicked)="openVisitaDetails($event)"></app-calendario>
+        </div>
+      </div>
+
+      <!-- Bottone Nuova Visita -->
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <button class="btn btn-success btn-lg" (click)="openNewVisita()">
+            + Prenota Nuova Visita
+          </button>
+        </div>
+      </div>
+
+      <!-- Sezione Visite in Evidenza -->
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <app-visite-evidenza></app-visite-evidenza>
+        </div>
+      </div>
+    </div>
+
+    <!-- MEDICO -->
+    <div *ngIf="userRole() === 'medico'">
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <h2 class="mb-4">Dashboard Medico</h2>
+        </div>
+      </div>
+
+      <!-- Sezione Profilo -->
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <app-user></app-user>
+        </div>
+      </div>
+
+      <!-- Sezione Calendario -->
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <app-calendario [visite]="visitaCalendario()" (visitaClicked)="openVisitaDetails($event)"></app-calendario>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADMIN -->
+    <div *ngIf="userRole() === 'admin'">
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <h2 class="mb-4">Dashboard Admin</h2>
+        </div>
+      </div>
+
+      <!-- Sezione Profilo -->
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <app-user></app-user>
+        </div>
+      </div>
+
+      <!-- Sezione Seleziona Reparto -->
+      <div class="row mb-4">
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-body">
+              <label class="form-label fw-bold">Seleziona Reparto</label>
+              <select class="form-select" [(ngModel)]="selectedReparto" (change)="updateVisiteAdmin()">
+                <option *ngFor="let rep of reparti()" [value]="rep">
+                  {{ rep }}
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sezione Calendario -->
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <app-calendario [visite]="visitaCalendario()" (visitaClicked)="openVisitaDetails($event)"></app-calendario>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Dettaglio Visita -->
+    <div *ngIf="showDettaglioVisita()" class="modal d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5);">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              {{ selectedVisita() ? 'Modifica Visita' : 'Nuova Prenotazione' }}
+            </h5>
+            <button type="button" class="btn-close" (click)="closeDettaglioVisita()"></button>
+          </div>
+          <div class="modal-body">
+            <app-dettaglio-visita [visita]="selectedVisita()" [isNewVisita]="isNewVisita()"></app-dettaglio-visita>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

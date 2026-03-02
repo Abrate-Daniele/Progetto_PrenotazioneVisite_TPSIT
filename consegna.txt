@@ -35,3 +35,28 @@ La grafica deve essere funzionale, decente e ben gestita.
 Possibilità di lavorare(max coppie)
 
 Ci si può mettere in coppie dividendosi in client e server
+
+
+
+struttura della pagina:
+- login con possibilità di registrazione, con select per indicare se paziente, medico o admin
+- homepage per il paziente strutturata in 3 sezioni: 
+ - profilo (component user): visualizzazione dati utente e possibilità di modifica
+ - calendario: calendario della settimana corrente con la possibilità di muoversi nel tempo, ogni giorno della settimana presenta 8 slot da 1 ora (9:00-17:00), all'interno di ogni slot deve essere visibile la visita prenotata, al click su una visita prenotata apri il component dettaglio-visita
+ - inserimento nuova visita (bottone): al click apre l'inserimento di una nuova visita tramite il component "dettaglio-visita"
+ - tabella visite in evidenza: tabella in cui si vedono i dettagli delle visite da pagare e si permette all'utente di pagarle
+- homepage per il dottore strutturata in 2 sezioni:
+ - profilo (component user): visualizzazione dati utente e possibilità di modifica
+ - calendario: calendario della settimana corrente con la possibilità di muoversi nel tempo, ogni giorno della settimana presenta 8 slot da 1 ora (9:00-17:00), all'interno di ogni slot deve essere visibili le visite prenotate del reparto a cui appartiene il dottore, al click su una visita prenotata apri il component dettaglio-visita
+- homepage per l'admin strutturata in 2 sezioni:
+ - profilo (component user): visualizzazione dati utente e possibilità di modifica
+ - select per indicare il reparto da visualizzare
+ - calendario: calendario della settimana corrente con la possibilità di muoversi nel tempo, ogni giorno della settimana presenta 8 slot da 1 ora (9:00-17:00), all'interno di ogni slot deve essere visibili le visite prenotate del reparto selezionato, al click su una visita prenotata apri il component dettaglio-visita
+
+component:
+ - dettaglio-visita:
+  - se clicco su una visita tramite il calendario mi deve permettere di modificare la data, l'ora e il medico della visita e deve permettere la cancellazione della visita
+  - se aperto dal bottone per aggiungere una visita: apre una pagina che permette l'aggiunta della visita che permette l'inserimento della data, slot orario, medico, reparto
+
+
+fai solo il front-end e lascia degli spazi vuoti con commento per i collegamenti al server

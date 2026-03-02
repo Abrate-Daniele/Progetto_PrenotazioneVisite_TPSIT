@@ -1,1 +1,60 @@
-<p>dettaglio-visita works!</p>
+<div class="card">
+  <div class="card-header bg-primary text-white">
+    <h5 class="mb-0">
+      {{ visita() ? 'Modifica Visita' : 'Prenotazione Nuova Visita' }}
+    </h5>
+  </div>
+
+  <div class="card-body">
+    <div class="mb-3">
+      <label class="form-label fw-bold">Data *</label>
+      <input type="date" class="form-control" [(ngModel)]="data" />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label fw-bold">Slot Orario *</label>
+      <select class="form-select" [(ngModel)]="slot">
+        <option *ngFor="let slot of slots_hours" [value]="slot.value">
+          {{ slot.label }}
+        </option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label fw-bold">Reparto *</label>
+      <select class="form-select" [(ngModel)]="reparto" (change)="onRepartoChange()">
+        <option *ngFor="let rep of reparti" [value]="rep">
+          {{ rep }}
+        </option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label fw-bold">Medico *</label>
+      <select class="form-select" [(ngModel)]="medico">
+        <option *ngFor="let med of medici" [value]="med.id">
+          Dr. {{ med.nome }} {{ med.cognome }}
+        </option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label fw-bold">Note</label>
+      <textarea class="form-control" rows="3" [(ngModel)]="note" placeholder="Eventuali note..."></textarea>
+    </div>
+
+    <div class="d-flex gap-2">
+      <button class="btn btn-primary" (click)="saveVisita()">
+        {{ visita() ? 'Aggiorna Visita' : 'Prenota Visita' }}
+      </button>
+
+      <button *ngIf="visita()" class="btn btn-danger" (click)="deleteVisita()">
+        Cancella Visita
+      </button>
+
+      <button class="btn btn-secondary" (click)="cancel()">
+        Annulla
+      </button>
+    </div>
+  </div>
+</div>
