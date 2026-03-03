@@ -1,83 +1,64 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService, UserRole } from '../services/auth.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'login',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
 export class Login {
   isLoginMode = signal(true);
-  selectedRole = signal<UserRole>('paziente');
+  loginForm: FormGroup;
+  registerForm: FormGroup;
 
-  // Campi del form di login
-  loginEmail = signal('');
-  loginPassword = signal('');
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private fb: FormBuilder
+  ) {
+    // Crea il form di login
+    this.loginForm = this.fb.group({
+      role: ['paziente'],
+      email: ['',  [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]]
+    });
 
-  // Campi del form di registrazione
-  regNome = signal('');
-  regCognome = signal('');
-  regEmail = signal('');
-  regPassword = signal('');
-  regConfirmPassword = signal('');
-  regRole = signal<UserRole>('paziente');
-
-  constructor(private authService: AuthService, private router: Router) {}
+    // Crea il form di registrazione
+    this.registerForm = this.fb.group({
+      nome: ['', [Validators.required, Validators.minLength(2)]],
+      cognome: ['', [Validators.required, Validators.minLength(2)]],
+      role: ['paziente', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      confirmPassword: ['', [Validators.required, Validators.minLength(6)]]
+    });
+  }
 
   toggleMode() {
     this.isLoginMode.set(!this.isLoginMode());
-    this.clearForm();
+    this.loginForm.reset({ role: 'paziente' });
+    this.registerForm.reset({ role: 'paziente' });
   }
 
   login() {
-    if (!this.loginEmail() || !this.loginPassword()) {
-      alert('Compila tutti i campi');
-      return;
-    }
 
-    this.authService.login(this.loginEmail(), this.loginPassword(), this.selectedRole());
-    this.router.navigate(['/homepage']);
+    if(this.loginForm.valid)
+    {
+      const { role, email, password } = this.loginForm.value;
+      this.authService.login(email, password, role);
+
+    }
   }
 
   register() {
-    if (
-      !this.regNome() ||
-      !this.regCognome() ||
-      !this.regEmail() ||
-      !this.regPassword() ||
-      !this.regConfirmPassword()
-    ) {
-      alert('Compila tutti i campi');
-      return;
+    if(this.registerForm.valid)
+    {
+      const { nome, cognome, role, email, password } = this.registerForm.value;
+      this.authService.register(nome, cognome, email, password, role);
     }
-
-    if (this.regPassword() !== this.regConfirmPassword()) {
-      alert('Le password non corrispondono');
-      return;
-    }
-
-    this.authService.register(
-      this.regNome(),
-      this.regCognome(),
-      this.regEmail(),
-      this.regPassword(),
-      this.regRole()
-    );
-
-    this.router.navigate(['/homepage']);
-  }
-
-  clearForm() {
-    this.loginEmail.set('');
-    this.loginPassword.set('');
-    this.regNome.set('');
-    this.regCognome.set('');
-    this.regEmail.set('');
-    this.regPassword.set('');
-    this.regConfirmPassword.set('');
   }
 }
