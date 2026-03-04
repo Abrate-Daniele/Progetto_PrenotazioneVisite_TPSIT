@@ -1,8 +1,5 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
   <div class="container-fluid">
-    <span class="navbar-brand fw-bold">
-      CUP - Clinica Unica Prenotazioni
-    </span>
     <div class="ms-auto d-flex align-items-center">
       <span class="text-white small" *ngIf="getUser()">
         {{ getUser()?.nome }} {{ getUser()?.cognome }} <strong>({{ getUser()?.role }})</strong>
@@ -13,5 +10,5 @@
 </nav>
 
 <div class="container-fluid">
-  <router-outlet></router-outlet>
+  <login></login>
 </div>
