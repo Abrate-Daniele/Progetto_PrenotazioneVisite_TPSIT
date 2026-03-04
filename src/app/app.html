@@ -10,5 +10,12 @@
 </nav>
 
 <div class="container-fluid">
-  <login></login>
+  @if(!getUser())
+  {
+    <login></login>
+  }
+  @else {
+    <app-homepage></app-homepage>
+  }
+
 </div>

@@ -32,7 +32,7 @@
           </td>
           <td *ngFor="let day of days()" class="p-2 text-center slot" style="width: 12.9%; min-width: 120px; min-height: 80px; vertical-align: top;">
             <ng-container *ngIf="getVisitaSlot(day, hour) as visita">
-              <div *ngIf="visita" class="alert alert-success p-2 mb-0 cursor-pointer" (click)="onVisitaClick(visita)" role="button">
+              <div *ngIf="visita" class="alert alert-success p-2 mb-0 cursor-pointer" (click)="onVisitaClick(visita)" role="button" [ngClass]="{'alert-success': visita.pagata, 'alert-danger': !visita.pagata}">
                 <small class="fw-bold">{{ visita.medicoNome }} {{ visita.medicoCognome }}</small>
                 <br />
                 <small class="text-muted">{{ visita.reparto }}</small>

@@ -8,7 +8,7 @@ import { Homepage } from "./homepage/homepage";
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, Login],
+  imports: [CommonModule, Login, Homepage],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
