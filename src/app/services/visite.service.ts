@@ -4,7 +4,7 @@ export interface Visita {
   id: number;
   dataInizio: Date;
   dataFine: Date;
-  slot: number; // 0-7 per orari 9:00-17:00
+  slot: number;
   pazienteId: number;
   pazienteNome: string;
   pazienteCognome: string;
@@ -21,6 +21,7 @@ export interface Visita {
 @Injectable({
   providedIn: 'root'
 })
+
 export class VisiteService {
   visite = signal<Visita[]>([
     {
@@ -54,6 +55,138 @@ export class VisiteService {
       stato: 'prenotata',
       pagata: true,
       importo: 80
+    },
+    {
+      id: 3,
+      dataInizio: new Date(2026, 2, 5, 10, 0),
+      dataFine: new Date(2026, 2, 5, 11, 0),
+      slot: 1,
+      pazienteId: 2,
+      pazienteNome: 'Giovanna',
+      pazienteCognome: 'Ferrari',
+      medicoId: 12,
+      medicoNome: 'Marco',
+      medicoCognome: 'Neri',
+      reparto: 'Cardiologia',
+      stato: 'completata',
+      pagata: true,
+      importo: 100,
+      note: 'Controllo pressione regolare'
+    },
+    {
+      id: 4,
+      dataInizio: new Date(2026, 2, 6, 11, 0),
+      dataFine: new Date(2026, 2, 6, 12, 0),
+      slot: 2,
+      pazienteId: 3,
+      pazienteNome: 'Paolo',
+      pazienteCognome: 'Gallo',
+      medicoId: 11,
+      medicoNome: 'Anna',
+      medicoCognome: 'Verdi',
+      reparto: 'Dermatologia',
+      stato: 'completata',
+      pagata: true,
+      importo: 80,
+      note: 'Dermatite trattata'
+    },
+    {
+      id: 5,
+      dataInizio: new Date(2026, 2, 7, 15, 0),
+      dataFine: new Date(2026, 2, 7, 16, 0),
+      slot: 6,
+      pazienteId: 2,
+      pazienteNome: 'Giovanna',
+      pazienteCognome: 'Ferrari',
+      medicoId: 13,
+      medicoNome: 'Roberto',
+      medicoCognome: 'Russo',
+      reparto: 'Ortopedia',
+      stato: 'prenotata',
+      pagata: false,
+      importo: 120
+    },
+    {
+      id: 6,
+      dataInizio: new Date(2026, 2, 10, 9, 0),
+      dataFine: new Date(2026, 2, 10, 10, 0),
+      slot: 0,
+      pazienteId: 4,
+      pazienteNome: 'Francesca',
+      pazienteCognome: 'Rizzo',
+      medicoId: 14,
+      medicoNome: 'Stefano',
+      medicoCognome: 'Moretti',
+      reparto: 'Neurologia',
+      stato: 'prenotata',
+      pagata: true,
+      importo: 150
+    },
+    {
+      id: 7,
+      dataInizio: new Date(2026, 2, 11, 13, 0),
+      dataFine: new Date(2026, 2, 11, 14, 0),
+      slot: 4,
+      pazienteId: 3,
+      pazienteNome: 'Paolo',
+      pazienteCognome: 'Gallo',
+      medicoId: 12,
+      medicoNome: 'Marco',
+      medicoCognome: 'Neri',
+      reparto: 'Cardiologia',
+      stato: 'cancellata',
+      pagata: false,
+      importo: 100,
+      note: 'Cancellata dal paziente'
+    },
+    {
+      id: 8,
+      dataInizio: new Date(2026, 2, 12, 16, 0),
+      dataFine: new Date(2026, 2, 12, 17, 0),
+      slot: 7,
+      pazienteId: 1,
+      pazienteNome: 'Mario',
+      pazienteCognome: 'Rossi',
+      medicoId: 13,
+      medicoNome: 'Roberto',
+      medicoCognome: 'Russo',
+      reparto: 'Ortopedia',
+      stato: 'prenotata',
+      pagata: true,
+      importo: 120
+    },
+    {
+      id: 9,
+      dataInizio: new Date(2026, 2, 13, 10, 0),
+      dataFine: new Date(2026, 2, 13, 11, 0),
+      slot: 1,
+      pazienteId: 4,
+      pazienteNome: 'Francesca',
+      pazienteCognome: 'Rizzo',
+      medicoId: 11,
+      medicoNome: 'Anna',
+      medicoCognome: 'Verdi',
+      reparto: 'Dermatologia',
+      stato: 'completata',
+      pagata: true,
+      importo: 80,
+      note: 'Acne curata'
+    },
+    {
+      id: 10,
+      dataInizio: new Date(2026, 2, 14, 14, 0),
+      dataFine: new Date(2026, 2, 14, 15, 0),
+      slot: 5,
+      pazienteId: 2,
+      pazienteNome: 'Giovanna',
+      pazienteCognome: 'Ferrari',
+      medicoId: 14,
+      medicoNome: 'Stefano',
+      medicoCognome: 'Moretti',
+      reparto: 'Neurologia',
+      stato: 'prenotata',
+      pagata: false,
+      importo: 150
     }
   ]);
 

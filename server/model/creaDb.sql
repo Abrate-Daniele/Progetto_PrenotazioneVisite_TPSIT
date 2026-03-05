@@ -75,6 +75,8 @@ CREATE TABLE VISITE (
     idMedico INT NOT NULL,
     idRep INT NOT NULL,
     pagata BOOLEAN DEFAULT FALSE,
+    stato CHAR NOT NULL,
+    note VARCHAR(200) NOT NULL,
 
     CONSTRAINT fk_visite_user
         FOREIGN KEY (idUser)
@@ -92,5 +94,5 @@ CREATE TABLE VISITE (
         FOREIGN KEY (idRep)
         REFERENCES REPARTI(id)
         ON DELETE CASCADE
-        ON UPDATE CASCADE,
+        ON UPDATE CASCADE
 );

@@ -16,7 +16,7 @@ export interface User {
 export interface AuthState {
   isAuthenticated: boolean;
   user: User | null;
-  token: string | null;
+
 }
 
 @Injectable({
@@ -25,37 +25,31 @@ export interface AuthState {
 export class AuthService {
   authState = signal<AuthState>({
     isAuthenticated: false,
-    user: null,
-    token: null
+    user: null
   });
 
-  login(email: string, password: string, role: UserRole) {
-    // TODO: Collegare al server per effettuare il login
-    // const response = await fetch('/api/auth/login', { ...})
-    
-    // Simulazione login con dati mock
-    const mockUser: User = {
-      id: 1,
-      nome: 'Mario',
-      cognome: 'Rossi',
-      email: email,
-      telefono: '3201234567',
-      role: role,
-      reparto: role === 'medico' ? 'Cardiologia' : undefined,
-      specializzazione: role === 'medico' ? 'Cardiologia' : undefined
-    };
-
-    this.authState.set({
-      isAuthenticated: true,
-      user: mockUser,
-      token: 'mock-token-' + Date.now()
+  async login(email: string, password: string, role: UserRole) {
+    const response = await fetch('http://localhost:8081/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include', // Importante: invia/riceve i cookie
+      body: JSON.stringify({ email, password, role })
     });
+
+    const data = await response.json();
+    console.log(data)
+    if (data.status == 'success') {
+      this.authState.set({
+        isAuthenticated: true,
+        user: data.data
+      });
+    }
   }
 
   register(nome: string, cognome: string, email: string, password: string, role: UserRole) {
     // TODO: Collegare al server per la registrazione
     // const response = await fetch('/api/auth/register', { ...})
-    
+
     this.login(email, password, role);
   }
 
@@ -63,8 +57,7 @@ export class AuthService {
     // TODO: Collegare al server per il logout
     this.authState.set({
       isAuthenticated: false,
-      user: null,
-      token: null
+      user: null
     });
   }
 
