@@ -24,16 +24,26 @@ async function eseguiQuery(query){
 async function getUserByMail(mail, table) {
   let query = `SELECT id FROM ${table} WHERE mail = '${mail}' `
   let ris = await eseguiQuery(query)
-  console.log(ris)
+  //console.log(ris)
   return ris[0]?.id
 }
 
 async function getUserById(campi, table, id) {
   let query = `SELECT ${campi} FROM ${table} WHERE id = ${id}`
   let ris = await eseguiQuery(query)
-  console.log(ris)
+  //console.log(ris)
   return ris[0]
 }
 
+async function getVisiteByAnyId(campo, valore) {
+  let query = `SELECT * FROM visite WHERE ${campo} = ${valore}`
 
-module.exports = {getUserByMail, getUserById}
+  let ris = await eseguiQuery(query)
+  console.log(ris)
+  let test = []
+
+  return ris
+}
+
+
+module.exports = {getUserByMail, getUserById, getVisiteByAnyId}

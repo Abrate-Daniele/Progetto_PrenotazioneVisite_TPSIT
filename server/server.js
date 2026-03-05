@@ -80,3 +80,54 @@ app.post('/login', async (richiesta, risposta)=>{
 
 
 })
+
+
+app.post('/getVisiteByPaziente', async (richiesta, risposta)=>{
+  let data = richiesta.body
+  let idUser = data.pazienteId
+
+  let visite = await db.getVisiteByAnyId('idUser', idUser)
+  let ris = []
+
+  for(let i = 0; i < visite.length; i++)
+  {
+    console.log(visite[i].data.toDateString())
+
+    let user = await db.getUserById('nome, cognome', 'user', visite[i].idUser)
+    visite[i].pazienteNome = user.nome
+    visite[i].pazienteCognome = user.cognome
+
+    let dottore = await db.getUserById('nome, cognome, costo', 'dottori', visite[i].idMedico)
+    visite[i].medicoNome = dottore.nome
+    visite[i].medicoCognome = dottore.cognome
+    visite[i].importo = dottore.costo
+
+    let reparto = await db.getUserById('nomeRep', 'reparti', visite[i].idRep)
+
+    visite[i].reparto = reparto.nomeRep
+    console.log(visite[i])
+    ris.push(visite[i])
+  }
+
+  /*visite.forEach(async visita => {
+
+  });*/
+
+  //console.log(ris)
+
+  risposta.send({status: 'success', data: ris})
+
+
+})
+
+app.post('/getVisiteByMedico', async (richiesta, risposta)=>{
+
+})
+
+app.post('/getVisiteByPazienteNP', async (richiesta, risposta)=>{
+
+})
+
+app.post('/getVisiteByPaziente', async (richiesta, risposta)=>{
+
+})

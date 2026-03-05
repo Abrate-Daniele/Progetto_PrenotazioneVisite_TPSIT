@@ -27,8 +27,7 @@ export class User implements OnInit {
       this.user.set(currentUser);
       this.nome.set(currentUser.nome);
       this.cognome.set(currentUser.cognome);
-      this.email.set(currentUser.email);
-      this.telefono.set(currentUser.telefono);
+      this.email.set(currentUser.mail);
     }
   }
 
@@ -39,8 +38,7 @@ export class User implements OnInit {
       if (user) {
         this.nome.set(user.nome);
         this.cognome.set(user.cognome);
-        this.email.set(user.email);
-        this.telefono.set(user.telefono);
+        this.email.set(user.mail);
       }
     }
   }
@@ -49,8 +47,7 @@ export class User implements OnInit {
     const updates: Partial<UserInterface> = {
       nome: this.nome(),
       cognome: this.cognome(),
-      email: this.email(),
-      telefono: this.telefono(),
+      mail: this.email(),
     };
 
     this.authService.updateProfile(updates);

@@ -42,7 +42,7 @@ export class Homepage implements OnInit {
     private router: Router
   ) {}
 
-  ngOnInit() {
+  async ngOnInit() {
     const user = this.authService.getCurrentUser();
     if (!user) {
       this.router.navigate(['/login']);
@@ -61,7 +61,7 @@ export class Homepage implements OnInit {
     } else if (user.role === 'medico') {
       this.visitaCalendario.set(this.visiteService.getVisiteByMedico(user.id));
     } else if (user.role === 'paziente') {
-      this.visitaCalendario.set(this.visiteService.getVisiteByPaziente(user.id));
+      this.visitaCalendario.set(await this.visiteService.getVisiteByPaziente(user.id));
     }
   }
 

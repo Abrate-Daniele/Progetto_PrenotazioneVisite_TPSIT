@@ -16,7 +16,7 @@ export class Calendario implements OnInit {
   currentDate = signal(new Date());
   weekStart = computed(() => {
     const date = new Date(this.currentDate());
-    const day = date.getDay();
+    const day = (date.getDay() || 7) - 1; // 0 = lunedì, 6 = domenica
     const diff = date.getDate() - day;
     return new Date(date.setDate(diff));
   });
@@ -34,11 +34,12 @@ export class Calendario implements OnInit {
 
   constructor(private visiteService: VisiteService, private authService: AuthService) {}
 
-  ngOnInit() {
+  async ngOnInit() {
     // Inizializza le visite basate sul ruolo dell'utente
     const user = this.authService.getCurrentUser();
     if (user?.role === 'paziente') {
-      this.visite = this.visiteService.getVisiteByPaziente(user.id);
+      this.visite = await this.visiteService.getVisiteByPaziente(user.id);
+      console.log(this.visite)
     } else if (user?.role === 'medico') {
       this.visite = this.visiteService.getVisiteByMedico(user.id);
     }
@@ -57,13 +58,15 @@ export class Calendario implements OnInit {
   }
 
   getVisitaSlot(day: Date, hour: number): Visita | undefined {
+    hour -= 9
     return this.visite.find(v => {
-      const visitaDate = new Date(v.dataInizio);
+      const visitaDate = new Date(v.data);
       return (
         visitaDate.getDate() === day.getDate() &&
         visitaDate.getMonth() === day.getMonth() &&
         visitaDate.getFullYear() === day.getFullYear() &&
-        visitaDate.getHours() === hour
+
+        v.ora === hour
       );
     });
   }

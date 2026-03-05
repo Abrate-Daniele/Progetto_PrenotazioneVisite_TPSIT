@@ -13,7 +13,7 @@
 
     <div class="mb-3">
       <label class="form-label fw-bold">Slot Orario *</label>
-      <select class="form-select" [(ngModel)]="slot">
+      <select class="form-select" [(ngModel)]="ora">
         <option *ngFor="let slot of slots_hours" [value]="slot.value">
           {{ slot.label }}
         </option>

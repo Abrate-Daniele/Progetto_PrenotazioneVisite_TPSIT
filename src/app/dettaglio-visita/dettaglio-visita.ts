@@ -16,7 +16,7 @@ export class DettaglioVisita implements OnInit {
 
   // Campi del form
   data = signal<string>('');
-  slot = signal<number>(0);
+  ora = signal<number>(0);
   medico = signal<number>(0);
   reparto = signal<string>('');
   note = signal<string>('');
@@ -48,8 +48,8 @@ export class DettaglioVisita implements OnInit {
     if (this.visita()) {
       // Modalità di modifica
       const v = this.visita()!;
-      this.data.set(this.formatDate(v.dataInizio));
-      this.slot.set(v.slot);
+      this.data.set(this.formatDate(v.data));
+      this.ora.set(v.ora);
       this.medico.set(v.medicoId);
       this.reparto.set(v.reparto);
       this.note.set(v.note || '');
@@ -58,7 +58,7 @@ export class DettaglioVisita implements OnInit {
       // Modalità di creazione
       const today = new Date();
       this.data.set(this.formatDate(today));
-      this.slot.set(0);
+      this.ora.set(0);
       if (this.reparti.length > 0) {
         this.reparto.set(this.reparti[0]);
         this.loadMedici(this.reparti[0]);
@@ -98,15 +98,14 @@ export class DettaglioVisita implements OnInit {
       // Aggiorna una visita esistente
       // TODO: Validare che la data non sia nel passato
       const dataInizio = this.parseDate(this.data());
-      dataInizio.setHours(9 + this.slot());
+      dataInizio.setHours(9 + this.ora());
 
       const dataFine = new Date(dataInizio);
       dataFine.setHours(dataFine.getHours() + 1);
 
       this.visiteService.updateVisita(this.visita()!.id, {
-        dataInizio,
-        dataFine,
-        slot: this.slot(),
+        data: this.parseDate(this.data()),
+        ora: this.ora(),
         medicoId: this.medico(),
         reparto: this.reparto(),
         note: this.note(),
@@ -116,7 +115,7 @@ export class DettaglioVisita implements OnInit {
     } else {
       // Crea una nuova visita
       const dataInizio = this.parseDate(this.data());
-      dataInizio.setHours(9 + this.slot());
+      dataInizio.setHours(9 + this.ora());
 
       const dataFine = new Date(dataInizio);
       dataFine.setHours(dataFine.getHours() + 1);
@@ -130,9 +129,8 @@ export class DettaglioVisita implements OnInit {
       const medico = this.medici.find(m => m.id === this.medico());
 
       const nuovaVisita: Omit<Visita, 'id'> = {
-        dataInizio,
-        dataFine,
-        slot: this.slot(),
+        data: this.parseDate(this.data()),
+        ora: this.ora(),
         pazienteId: user.id,
         pazienteNome: user.nome,
         pazienteCognome: user.cognome,

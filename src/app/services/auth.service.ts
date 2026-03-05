@@ -6,11 +6,9 @@ export interface User {
   id: number;
   nome: string;
   cognome: string;
-  email: string;
-  telefono: string;
+  mail: string;
   role: UserRole;
   reparto?: string;
-  specializzazione?: string;
 }
 
 export interface AuthState {
