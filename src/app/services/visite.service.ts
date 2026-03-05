@@ -40,9 +40,20 @@ export class VisiteService {
     return [];
   }
 
-  getVisiteByMedico(medicoId: number): Visita[] {
-    // TODO: Collegare al server
-    return this.visite().filter(v => v.medicoId === medicoId && v.stato !== 'cancellata');
+  async getVisiteByMedico(medicoId: number): Promise<Visita[]> {
+    const response = await fetch(`http://localhost:8081/getVisiteByMedico`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ medicoId })
+    });
+
+    const data = await response.json();
+    console.log(data)
+    if (data.status === 'success') {
+      return data.data;
+    }
+    return [];
   }
 
   getVisiteByReparto(reparto: string): Visita[] {

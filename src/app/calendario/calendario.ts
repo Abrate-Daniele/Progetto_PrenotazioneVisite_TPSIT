@@ -13,6 +13,7 @@ export class Calendario implements OnInit {
   @Input() visite: Visita[] = [];
   @Output() visitaClicked = new EventEmitter<Visita>();
 
+  user: any = null;
   currentDate = signal(new Date());
   weekStart = computed(() => {
     const date = new Date(this.currentDate());
@@ -37,11 +38,12 @@ export class Calendario implements OnInit {
   async ngOnInit() {
     // Inizializza le visite basate sul ruolo dell'utente
     const user = this.authService.getCurrentUser();
+    this.user = user;
     if (user?.role === 'paziente') {
       this.visite = await this.visiteService.getVisiteByPaziente(user.id);
-      console.log(this.visite)
     } else if (user?.role === 'medico') {
-      this.visite = this.visiteService.getVisiteByMedico(user.id);
+      console.log(user)
+      this.visite = await this.visiteService.getVisiteByMedico(user.id);
     }
   }
 

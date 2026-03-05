@@ -109,19 +109,38 @@ app.post('/getVisiteByPaziente', async (richiesta, risposta)=>{
     ris.push(visite[i])
   }
 
-  /*visite.forEach(async visita => {
-
-  });*/
-
-  //console.log(ris)
 
   risposta.send({status: 'success', data: ris})
-
-
 })
 
 app.post('/getVisiteByMedico', async (richiesta, risposta)=>{
+  let data = richiesta.body
+  let idMedico = data.medicoId
 
+  let visite = await db.getVisiteByAnyId('idMedico', idMedico)
+  let ris = []
+  console.log(visite)
+  for(let i = 0; i < visite.length; i++)
+  {
+
+    let user = await db.getUserById('nome, cognome', 'user', visite[i].idUser)
+    visite[i].pazienteNome = user.nome
+    visite[i].pazienteCognome = user.cognome
+
+    let dottore = await db.getUserById('nome, cognome, costo', 'dottori', visite[i].idMedico)
+    visite[i].medicoNome = dottore.nome
+    visite[i].medicoCognome = dottore.cognome
+    visite[i].importo = dottore.costo
+
+    let reparto = await db.getUserById('nomeRep', 'reparti', visite[i].idRep)
+
+    visite[i].reparto = reparto.nomeRep
+    console.log(visite[i])
+    ris.push(visite[i])
+  }
+
+
+  risposta.send({status: 'success', data: ris})
 })
 
 app.post('/getVisiteByPazienteNP', async (richiesta, risposta)=>{

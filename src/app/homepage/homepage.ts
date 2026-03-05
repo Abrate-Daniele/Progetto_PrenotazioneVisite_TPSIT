@@ -59,7 +59,7 @@ export class Homepage implements OnInit {
         this.updateVisiteAdmin();
       }
     } else if (user.role === 'medico') {
-      this.visitaCalendario.set(this.visiteService.getVisiteByMedico(user.id));
+      this.visitaCalendario.set(await this.visiteService.getVisiteByMedico(user.id));
     } else if (user.role === 'paziente') {
       this.visitaCalendario.set(await this.visiteService.getVisiteByPaziente(user.id));
     }
