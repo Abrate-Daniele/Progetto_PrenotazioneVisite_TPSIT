@@ -38,31 +38,45 @@ app.use(expressSession({
 app.post('/login', async (richiesta, risposta)=>{
   let data = richiesta.body
   console.log(data)
-
+  let role = {}
   switch(data.role)
   {
     case 'paziente':
-    {
-      let idUser = await db.getUserByMail(data.email);
-      console.log(idUser)
-      let pwd = await db.getUserById("password", idUser)
-      console.log(pwd)
-      if(data.password == pwd.password)
-      {
+      role.campi = 'id, nome, cognome, indirizzo, dataN, mail'
+      role.table = 'user'
+      role.role = 'paziente'
+      break;
 
-        let user = await db.getUserById("id, nome, cognome, indirizzo, dataN, mail", idUser)
-        richiesta.session.userID = idUser
-        user.role = 'paziente'
-        console.log(user)
-        risposta.send({status: 'success', data: user})
+    case 'medico':
+      role.campi = 'id, nome, cognome, indirizzo, dataN, mail, idRep, costo'
+      role.table = 'dottori'
+      role.role = 'medico'
+      break;
 
-      }
-      else
-        risposta.send({status: 'failed', data: 'Password errata'})
+    case 'admin':
+      role.campi = 'id, utente, mail'
+      role.table = 'admin'
+      role.role = 'admin'
+      break;
 
-    }
   }
 
+  let idUser = await db.getUserByMail(data.email, role.table);
+  console.log(idUser)
+  let pwd = await db.getUserById("password", role.table, idUser)
+  console.log(pwd)
+  if(data.password == pwd.password)
+  {
+
+    let user = await db.getUserById(role.campi, role.table, idUser)
+    richiesta.session.userID = idUser
+    user.role = role.role
+    console.log(user)
+    risposta.send({status: 'success', data: user})
+
+  }
+  else
+    risposta.send({status: 'failed', data: 'Password errata'})
 
 
 })

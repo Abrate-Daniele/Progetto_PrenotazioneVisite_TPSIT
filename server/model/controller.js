@@ -21,15 +21,15 @@ async function eseguiQuery(query){
     })
 }
 
-async function getUserByMail(mail) {
-  let query = `SELECT id FROM user WHERE mail = '${mail}' `
+async function getUserByMail(mail, table) {
+  let query = `SELECT id FROM ${table} WHERE mail = '${mail}' `
   let ris = await eseguiQuery(query)
   console.log(ris)
   return ris[0]?.id
 }
 
-async function getUserById(campi, id) {
-  let query = `SELECT ${campi} FROM user WHERE id = ${id}`
+async function getUserById(campi, table, id) {
+  let query = `SELECT ${campi} FROM ${table} WHERE id = ${id}`
   let ris = await eseguiQuery(query)
   console.log(ris)
   return ris[0]
