@@ -168,7 +168,7 @@ export class DettaglioVisita {
         reparto: this.reparto,
         stato: 'prenotata',
         pagata: false,
-        importo: 100,
+        importo: 100, // Non usato nel database, mantiene per compatibilità
         note: this.note,
       };
 

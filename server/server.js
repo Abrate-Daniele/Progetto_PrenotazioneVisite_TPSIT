@@ -149,63 +149,66 @@ app.post('/getAllReparti', async (richiesta, risposta)=>{
 })
 
 app.post('/createVisita', async (richiesta, risposta)=>{
-  let data = richiesta.body
-
-  let result = await db.createVisita(data)
-
-  risposta.send({status: 'success', data: result})
+  try {
+    let data = richiesta.body;
+    let result = await db.createVisita(data);
+    risposta.send({status: 'success', data: result});
+  } catch (error) {
+    console.error('Errore nella creazione della visita:', error);
+    risposta.status(400).send({status: 'error', message: error.message});
+  }
 })
 
 app.post('/updateVisita', async (richiesta, risposta)=>{
-  let data = richiesta.body
-  let id = data.id
-  let updates = {...data}
-  delete updates.id
+  try {
+    let data = richiesta.body;
+    let id = data.id;
+    let updates = {...data};
+    delete updates.id;
 
-  let result = await db.updateVisita(id, updates)
-
-  risposta.send({status: 'success', data: result})
+    let result = await db.updateVisita(id, updates);
+    risposta.send({status: 'success', data: result});
+  } catch (error) {
+    console.error('Errore nell\'aggiornamento della visita:', error);
+    risposta.status(400).send({status: 'error', message: error.message});
+  }
 })
 
 app.post('/deleteVisita', async (richiesta, risposta)=>{
-  let data = richiesta.body
-
-  let result = await db.deleteVisita(data.id)
-
-  risposta.send({status: 'success', data: result})
+  try {
+    let data = richiesta.body;
+    let result = await db.deleteVisita(data.id);
+    risposta.send({status: 'success', data: result});
+  } catch (error) {
+    console.error('Errore nell\'eliminazione della visita:', error);
+    risposta.status(400).send({status: 'error', message: error.message});
+  }
 })
 
 app.post('/pagaVisita', async (richiesta, risposta)=>{
-  let data = richiesta.body
-
-  let result = await db.pagaVisita(data.id)
-
-  risposta.send({status: 'success', data: result})
+  try {
+    let data = richiesta.body;
+    let result = await db.pagaVisita(data.id);
+    risposta.send({status: 'success', data: result});
+  } catch (error) {
+    console.error('Errore nel pagamento della visita:', error);
+    risposta.status(400).send({status: 'error', message: error.message});
+  }
 })
 
 app.post('/getSlotDisponibili', async (richiesta, risposta)=>{
-  let data = richiesta.body
-  let medicoId = data.medicoId
-  let data_visita = data.data
-  let oreOcc = await db.getVisiteByMedicoEData(medicoId, data_visita)
-  let allSlots = [
-    { value: 0, label: '09:00 - 10:00' },
-    { value: 1, label: '10:00 - 11:00' },
-    { value: 2, label: '11:00 - 12:00' },
-    { value: 3, label: '12:00 - 13:00' },
-    { value: 4, label: '13:00 - 14:00' },
-    { value: 5, label: '14:00 - 15:00' },
-    { value: 6, label: '15:00 - 16:00' },
-    { value: 7, label: '16:00 - 17:00' },
-  ];
+  try {
+    let data = richiesta.body;
+    let medicoId = data.medicoId;
+    let data_visita = data.data;
 
-  let ris = []
-  ris = allSlots.filter(slot => !oreOcc.some(occ => occ.ora === slot.value));
-  
+    let slotsDisponibili = await db.getSlotDisponibili(medicoId, data_visita);
 
-
-
-  risposta.send({status: 'success', data: ris})
+    risposta.send({status: 'success', data: slotsDisponibili});
+  } catch (error) {
+    console.error('Errore nel recupero degli slot disponibili:', error);
+    risposta.status(400).send({status: 'error', message: error.message});
+  }
 })
 
 
