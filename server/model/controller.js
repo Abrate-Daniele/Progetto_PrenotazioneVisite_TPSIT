@@ -40,10 +40,28 @@ async function getVisiteByAnyId(campo, valore) {
 
   let ris = await eseguiQuery(query)
   console.log(ris)
-  let test = []
 
   return ris
 }
 
+async function getIdRepartoByNome(nome) {
+  let query = `SELECT id FROM reparti WHERE nomeRep = '${nome}'`
 
-module.exports = {getUserByMail, getUserById, getVisiteByAnyId}
+  let ris = await eseguiQuery(query)
+  console.log(ris)
+
+
+  return ris
+}
+
+async function getMediciByIdRep(idRep) {
+  let query = `SELECT id FROM reparti WHERE idRep = ${idRep}`
+
+  let ris = await eseguiQuery(query)
+  console.log(ris)
+
+
+  return ris
+}
+
+module.exports = {getUserByMail, getUserById, getVisiteByAnyId, getIdRepartoByNome, getMediciByIdRep}

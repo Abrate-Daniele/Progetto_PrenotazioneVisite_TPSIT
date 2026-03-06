@@ -4,6 +4,7 @@ var app = express()
 var porta = 8081
 
 var expressSession = require("express-session")
+const { provideAppInitializer } = require("@angular/core")
 
 /* Questa callback viene richiamata quando avvio il server */
 /* rispetto alla listen del modulo http, questa è ASINCRONA */
@@ -87,28 +88,8 @@ app.post('/getVisiteByPaziente', async (richiesta, risposta)=>{
   let idUser = data.pazienteId
 
   let visite = await db.getVisiteByAnyId('idUser', idUser)
-  let ris = []
 
-  for(let i = 0; i < visite.length; i++)
-  {
-    console.log(visite[i].data.toDateString())
-
-    let user = await db.getUserById('nome, cognome', 'user', visite[i].idUser)
-    visite[i].pazienteNome = user.nome
-    visite[i].pazienteCognome = user.cognome
-
-    let dottore = await db.getUserById('nome, cognome, costo', 'dottori', visite[i].idMedico)
-    visite[i].medicoNome = dottore.nome
-    visite[i].medicoCognome = dottore.cognome
-    visite[i].importo = dottore.costo
-
-    let reparto = await db.getUserById('nomeRep', 'reparti', visite[i].idRep)
-
-    visite[i].reparto = reparto.nomeRep
-    console.log(visite[i])
-    ris.push(visite[i])
-  }
-
+  let ris = await parseVisite(visite)
 
   risposta.send({status: 'success', data: ris})
 })
@@ -118,11 +99,45 @@ app.post('/getVisiteByMedico', async (richiesta, risposta)=>{
   let idMedico = data.medicoId
 
   let visite = await db.getVisiteByAnyId('idMedico', idMedico)
+
+  let ris = await parseVisite(visite)
+
+  risposta.send({status: 'success', data: ris})
+})
+
+app.post('/getVisiteByReparto', async (richiesta, risposta)=>{
+  let data = richiesta.body
+  let rep = data.reparto
+
+  let idReparto = await db.getIdRepartoByNome(rep)
+
+  let visite = await db.getVisiteByAnyId('idRep', idReparto[0].id)
+
+  let ris = await parseVisite(visite)
+
+  risposta.send({status: 'success', data: ris})
+})
+
+app.post('/getVisiteByPazienteNP', async (richiesta, risposta)=>{
+
+})
+
+app.post('/getMediciByReparto', async (richiesta, risposta)=>{
+  let data = richiesta.body
+  let rep = data.reparto
+
+  let medici = await db.getMediciByIdRep(rep)
+
+  risposta.send({status: 'success', data: medici})
+})
+
+
+async function parseVisite(visite)
+{
   let ris = []
   console.log(visite)
   for(let i = 0; i < visite.length; i++)
   {
-
     let user = await db.getUserById('nome, cognome', 'user', visite[i].idUser)
     visite[i].pazienteNome = user.nome
     visite[i].pazienteCognome = user.cognome
@@ -139,14 +154,5 @@ app.post('/getVisiteByMedico', async (richiesta, risposta)=>{
     ris.push(visite[i])
   }
 
-
-  risposta.send({status: 'success', data: ris})
-})
-
-app.post('/getVisiteByPazienteNP', async (richiesta, risposta)=>{
-
-})
-
-app.post('/getVisiteByPaziente', async (richiesta, risposta)=>{
-
-})
+  return ris
+}

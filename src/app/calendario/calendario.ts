@@ -74,6 +74,7 @@ export class Calendario implements OnInit {
   }
 
   onVisitaClick(visita: Visita) {
+    console.log(visita)
     this.visitaClicked.emit(visita);
   }
 

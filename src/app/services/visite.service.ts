@@ -56,9 +56,20 @@ export class VisiteService {
     return [];
   }
 
-  getVisiteByReparto(reparto: string): Visita[] {
-    // TODO: Collegare al server
-    return this.visite().filter(v => v.reparto === reparto && v.stato !== 'cancellata');
+  async getVisiteByReparto(reparto: string): Promise<Visita[]> {
+    const response = await fetch(`http://localhost:8081/getVisiteByReparto`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ reparto })
+    });
+
+    const data = await response.json();
+    console.log(data)
+    if (data.status === 'success') {
+      return data.data;
+    }
+    return [];
   }
 
   getVisitaNonPagate(pazienteId: number): Visita[] {

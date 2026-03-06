@@ -65,9 +65,9 @@ export class Homepage implements OnInit {
     }
   }
 
-  updateVisiteAdmin() {
+  async updateVisiteAdmin() {
     this.visitaCalendario.set(
-      this.visiteService.getVisiteByReparto(this.selectedReparto())
+      await this.visiteService.getVisiteByReparto(this.selectedReparto())
     );
   }
 

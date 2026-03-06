@@ -1,4 +1,4 @@
-import { Component, signal, input, OnInit } from '@angular/core';
+import { Component, signal, input, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Visita, VisiteService } from '../services/visite.service';
@@ -10,7 +10,7 @@ import { AuthService } from '../services/auth.service';
   templateUrl: './dettaglio-visita.html',
   styleUrl: './dettaglio-visita.css',
 })
-export class DettaglioVisita implements OnInit {
+export class DettaglioVisita {
   visita = input<Visita | null>(null);
   isNewVisita = input(false);
 
@@ -40,34 +40,36 @@ export class DettaglioVisita implements OnInit {
   constructor(
     private visiteService: VisiteService,
     private authService: AuthService
-  ) {}
+  ) {
+    effect(() => {
+      console.log(this.visita)
+      this.reparti = this.visiteService.getTutiReparti();
 
-  ngOnInit() {
-    this.reparti = this.visiteService.getTutiReparti();
-
-    if (this.visita()) {
-      // Modalità di modifica
-      const v = this.visita()!;
-      this.data.set(this.formatDate(v.data));
-      this.ora.set(v.ora);
-      this.medico.set(v.medicoId);
-      this.reparto.set(v.reparto);
-      this.note.set(v.note || '');
-      this.loadMedici(v.reparto);
-    } else if (this.isNewVisita()) {
-      // Modalità di creazione
-      const today = new Date();
-      this.data.set(this.formatDate(today));
-      this.ora.set(0);
-      if (this.reparti.length > 0) {
-        this.reparto.set(this.reparti[0]);
-        this.loadMedici(this.reparti[0]);
+      if (this.visita()) {
+        // Modalità di modifica
+        const v = this.visita()!;
+        this.data.set(typeof v.data === 'string' ? v.data : this.formatDate(v.data));
+        this.ora.set(v.ora);
+        this.medico.set(v.medicoId);
+        this.reparto.set(v.reparto);
+        this.note.set(v.note || '');
+        this.loadMedici(v.reparto);
+      } else if (this.isNewVisita()) {
+        // Modalità di creazione
+        const today = new Date();
+        this.data.set(this.formatDate(today));
+        this.ora.set(0);
+        if (this.reparti.length > 0) {
+          this.reparto.set(this.reparti[0]);
+          this.loadMedici(this.reparti[0]);
+        }
       }
-    }
+    });
   }
 
   loadMedici(reparto: string) {
     this.medici = this.visiteService.getMediciByReparto(reparto);
+    
     if (this.medici.length > 0) {
       this.medico.set(this.medici[0].id);
     }
