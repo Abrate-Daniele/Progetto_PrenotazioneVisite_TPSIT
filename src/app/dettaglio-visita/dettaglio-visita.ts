@@ -41,9 +41,9 @@ export class DettaglioVisita {
     private visiteService: VisiteService,
     private authService: AuthService
   ) {
-    effect(() => {
+    effect(async () => {
       console.log(this.visita)
-      this.reparti = this.visiteService.getTutiReparti();
+      this.reparti = await this.visiteService.getTutiReparti();
 
       if (this.visita()) {
         // Modalità di modifica
@@ -67,8 +67,8 @@ export class DettaglioVisita {
     });
   }
 
-  loadMedici(reparto: string) {
-    this.medici = this.visiteService.getMediciByReparto(reparto);
+  async loadMedici(reparto: string) {
+    this.medici = await this.visiteService.getMediciByReparto(reparto);
     
     if (this.medici.length > 0) {
       this.medico.set(this.medici[0].id);

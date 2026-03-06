@@ -17,10 +17,10 @@ export class VisiteEvidenza implements OnInit {
     private authService: AuthService
   ) {}
 
-  ngOnInit() {
+  async ngOnInit() {
     const user = this.authService.getCurrentUser();
     if (user?.role === 'paziente') {
-      this.visiteDaPagare.set(this.visiteService.getVisitaNonPagate(user.id));
+      this.visiteDaPagare.set(await this.visiteService.getVisitaNonPagate(user.id));
     }
   }
 

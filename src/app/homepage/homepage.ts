@@ -53,7 +53,7 @@ export class Homepage implements OnInit {
     this.userRole.set(user.role);
 
     if (user.role === 'admin') {
-      this.reparti.set(this.visiteService.getTutiReparti());
+      this.reparti.set(await this.visiteService.getTutiReparti());
       if (this.reparti().length > 0) {
         this.selectedReparto.set(this.reparti()[0]);
         this.updateVisiteAdmin();
