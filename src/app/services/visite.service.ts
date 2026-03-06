@@ -72,50 +72,116 @@ export class VisiteService {
     return [];
   }
 
-  getVisitaNonPagate(pazienteId: number): Visita[] {
-    // TODO: Collegare al server
-    return this.visite().filter(
-      v => v.pazienteId === pazienteId && !v.pagata && v.stato === 'prenotata'
-    );
+  async getVisitaNonPagate(pazienteId: number): Promise<Visita[]> {
+    const response = await fetch(`http://localhost:8081/getVisiteByPazienteNP`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ pazienteId })
+    });
+
+    const data = await response.json();
+    console.log(data)
+    if (data.status === 'success') {
+      return data.data;
+    }
+    return [];
   }
 
-  createVisita(visita: Omit<Visita, 'id'>): void {
-    // TODO: Collegare al server
-    const newVisita: Visita = {
-      ...visita,
-      id: Math.max(...this.visite().map(v => v.id), 0) + 1
-    };
-    this.visite.update(visite => [...visite, newVisita]);
+  async createVisita(visita: Omit<Visita, 'id'>): Promise<void> {
+    const response = await fetch(`http://localhost:8081/createVisita`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(visita)
+    });
+
+    const data = await response.json();
+    console.log(data)
+    if (data.status === 'success') {
+      // Ricarica le visite del paziente per aggiornare il signal
+      const visite = await this.getVisiteByPaziente(visita.pazienteId);
+      this.visite.set(visite);
+    }
   }
 
-  updateVisita(id: number, updates: Partial<Visita>): void {
-    // TODO: Collegare al server
-    this.visite.update(visite =>
-      visite.map(v => v.id === id ? { ...v, ...updates } : v)
-    );
+  async updateVisita(id: number, updates: Partial<Visita>): Promise<void> {
+    const response = await fetch(`http://localhost:8081/updateVisita`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ id, ...updates })
+    });
+
+    const data = await response.json();
+    console.log(data)
+    if (data.status === 'success') {
+      // Aggiorna il signal locale
+      this.visite.update(visite =>
+        visite.map(v => v.id === id ? { ...v, ...updates } : v)
+      );
+    }
   }
 
-  deleteVisita(id: number): void {
-    // TODO: Collegare al server
-    this.updateVisita(id, { stato: 'cancellata' });
+  async deleteVisita(id: number): Promise<void> {
+    const response = await fetch(`http://localhost:8081/deleteVisita`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ id })
+    });
+
+    const data = await response.json();
+    console.log(data)
+    if (data.status === 'success') {
+      this.updateVisita(id, { stato: 'cancellata' });
+    }
   }
 
-  pagaVisita(id: number): void {
-    // TODO: Collegare al server
-    this.updateVisita(id, { pagata: true });
+  async pagaVisita(id: number): Promise<void> {
+    const response = await fetch(`http://localhost:8081/pagaVisita`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ id })
+    });
+
+    const data = await response.json();
+    console.log(data)
+    if (data.status === 'success') {
+      this.updateVisita(id, { pagata: true });
+    }
   }
 
-  getMediciByReparto(reparto: string): any[] {
-    // TODO: Collegare al server
-    return [
-      { id: 10, nome: 'Luigi', cognome: 'Bianchi', reparto: 'Cardiologia' },
-      { id: 11, nome: 'Anna', cognome: 'Verdi', reparto: 'Dermatologia' },
-      { id: 12, nome: 'Marco', cognome: 'Neri', reparto: 'Cardiologia' }
-    ].filter(m => m.reparto === reparto);
+  async getMediciByReparto(reparto: string): Promise<any[]> {
+    const response = await fetch(`http://localhost:8081/getMediciByReparto`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ reparto })
+    });
+
+    const data = await response.json();
+    console.log(data)
+    if (data.status === 'success') {
+      return data.data;
+    }
+    return [];
   }
 
-  getTutiReparti(): string[] {
-    // TODO: Collegare al server
-    return ['Cardiologia', 'Dermatologia', 'Ortopedia', 'Neurologia'];
+  async getTutiReparti(): Promise<string[]> {
+    const response = await fetch(`http://localhost:8081/getAllReparti`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({})
+    });
+
+    const data = await response.json();
+    console.log(data)
+    if (data.status === 'success') {
+      return data.data;
+    }
+    return [];
   }
 }

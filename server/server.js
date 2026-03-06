@@ -119,16 +119,68 @@ app.post('/getVisiteByReparto', async (richiesta, risposta)=>{
 })
 
 app.post('/getVisiteByPazienteNP', async (richiesta, risposta)=>{
+  let data = richiesta.body
+  let idUser = data.pazienteId
 
+  let visite = await db.getVisiteNonPagate(idUser)
+
+  let ris = await parseVisite(visite)
+
+  risposta.send({status: 'success', data: ris})
 })
 
 app.post('/getMediciByReparto', async (richiesta, risposta)=>{
   let data = richiesta.body
   let rep = data.reparto
 
-  let medici = await db.getMediciByIdRep(rep)
+  let idReparto = await db.getIdRepartoByNome(rep)
+
+  let medici = await db.getMediciByIdRep(idReparto[0].id)
 
   risposta.send({status: 'success', data: medici})
+})
+
+app.post('/getAllReparti', async (richiesta, risposta)=>{
+  let reparti = await db.getAllReparti()
+  
+  let repartiNomi = reparti.map(r => r.nomeRep)
+
+  risposta.send({status: 'success', data: repartiNomi})
+})
+
+app.post('/createVisita', async (richiesta, risposta)=>{
+  let data = richiesta.body
+  
+  let result = await db.createVisita(data)
+
+  risposta.send({status: 'success', data: result})
+})
+
+app.post('/updateVisita', async (richiesta, risposta)=>{
+  let data = richiesta.body
+  let id = data.id
+  let updates = {...data}
+  delete updates.id
+  
+  let result = await db.updateVisita(id, updates)
+
+  risposta.send({status: 'success', data: result})
+})
+
+app.post('/deleteVisita', async (richiesta, risposta)=>{
+  let data = richiesta.body
+  
+  let result = await db.deleteVisita(data.id)
+
+  risposta.send({status: 'success', data: result})
+})
+
+app.post('/pagaVisita', async (richiesta, risposta)=>{
+  let data = richiesta.body
+  
+  let result = await db.pagaVisita(data.id)
+
+  risposta.send({status: 'success', data: result})
 })
 
 
