@@ -142,7 +142,7 @@ app.post('/getMediciByReparto', async (richiesta, risposta)=>{
 
 app.post('/getAllReparti', async (richiesta, risposta)=>{
   let reparti = await db.getAllReparti()
-  
+
   let repartiNomi = reparti.map(r => r.nomeRep)
 
   risposta.send({status: 'success', data: repartiNomi})
@@ -150,7 +150,7 @@ app.post('/getAllReparti', async (richiesta, risposta)=>{
 
 app.post('/createVisita', async (richiesta, risposta)=>{
   let data = richiesta.body
-  
+
   let result = await db.createVisita(data)
 
   risposta.send({status: 'success', data: result})
@@ -161,7 +161,7 @@ app.post('/updateVisita', async (richiesta, risposta)=>{
   let id = data.id
   let updates = {...data}
   delete updates.id
-  
+
   let result = await db.updateVisita(id, updates)
 
   risposta.send({status: 'success', data: result})
@@ -169,7 +169,7 @@ app.post('/updateVisita', async (richiesta, risposta)=>{
 
 app.post('/deleteVisita', async (richiesta, risposta)=>{
   let data = richiesta.body
-  
+
   let result = await db.deleteVisita(data.id)
 
   risposta.send({status: 'success', data: result})
@@ -177,10 +177,35 @@ app.post('/deleteVisita', async (richiesta, risposta)=>{
 
 app.post('/pagaVisita', async (richiesta, risposta)=>{
   let data = richiesta.body
-  
+
   let result = await db.pagaVisita(data.id)
 
   risposta.send({status: 'success', data: result})
+})
+
+app.post('/getSlotDisponibili', async (richiesta, risposta)=>{
+  let data = richiesta.body
+  let medicoId = data.medicoId
+  let data_visita = data.data
+  let oreOcc = await db.getVisiteByMedicoEData(medicoId, data_visita)
+  let allSlots = [
+    { value: 0, label: '09:00 - 10:00' },
+    { value: 1, label: '10:00 - 11:00' },
+    { value: 2, label: '11:00 - 12:00' },
+    { value: 3, label: '12:00 - 13:00' },
+    { value: 4, label: '13:00 - 14:00' },
+    { value: 5, label: '14:00 - 15:00' },
+    { value: 6, label: '15:00 - 16:00' },
+    { value: 7, label: '16:00 - 17:00' },
+  ];
+
+  let ris = []
+  ris = allSlots.filter(slot => !oreOcc.some(occ => occ.ora === slot.value));
+  
+
+
+
+  risposta.send({status: 'success', data: ris})
 })
 
 

@@ -1,4 +1,4 @@
-import { Component, signal, OnInit } from '@angular/core';
+import { Component, signal, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Visita, VisiteService } from '../services/visite.service';
 import { AuthService } from '../services/auth.service';
@@ -15,13 +15,17 @@ export class VisiteEvidenza implements OnInit {
   constructor(
     private visiteService: VisiteService,
     private authService: AuthService
-  ) {}
+  ) {
+    effect(async()=>{
+      const user = this.authService.getCurrentUser();
+      if (user?.role === 'paziente') {
+        this.visiteDaPagare.set(await this.visiteService.getVisitaNonPagate(user.id));
+      }
+    })
+
+  }
 
   async ngOnInit() {
-    const user = this.authService.getCurrentUser();
-    if (user?.role === 'paziente') {
-      this.visiteDaPagare.set(await this.visiteService.getVisitaNonPagate(user.id));
-    }
   }
 
   pagaVisita(visita: Visita) {

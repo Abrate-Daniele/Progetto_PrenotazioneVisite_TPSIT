@@ -22,6 +22,7 @@ INSERT INTO DOTTORI (nome, cognome, dataN, indirizzo, mail, password, idRep, cos
 ('Luca', 'Bianchi', '1980-09-22', 'Via Torino 8', 'l.bianchi@ospedale.it', 'pass123', 2, 100.00),
 ('Giulia', 'Verdi', '1985-02-15', 'Via Milano 30', 'g.verdi@ospedale.it', 'pass123', 3, 90.00),
 ('Paolo', 'Neri', '1978-11-03', 'Via Firenze 5', 'p.neri@ospedale.it', 'pass123', 4, 110.00);
+('Luigi', 'Giallo', '1975-12-03', 'Via Roma 34', 'l.giallo@ospedale.it', 'pass123', 1, 80.00);
 
 
 /* -------------------------

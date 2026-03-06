@@ -41,7 +41,10 @@ export class AuthService {
         isAuthenticated: true,
         user: data.data
       });
+      return false
     }
+    else
+      return true
   }
 
   register(nome: string, cognome: string, email: string, password: string, role: UserRole) {

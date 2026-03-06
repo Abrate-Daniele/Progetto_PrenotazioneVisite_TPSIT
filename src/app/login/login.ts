@@ -14,6 +14,7 @@ export class Login {
   isLoginMode = signal(true);
   loginForm: FormGroup;
   registerForm: FormGroup;
+  errLogin:boolean = false;
 
   constructor(
     private authService: AuthService,
@@ -44,12 +45,12 @@ export class Login {
     this.registerForm.reset({ role: 'paziente' });
   }
 
-  login() {
+  async login() {
 
     if(this.loginForm.valid)
     {
       const { role, email, password } = this.loginForm.value;
-      this.authService.login(email, password, role);
+      this.errLogin = await this.authService.login(email, password, role);
 
     }
   }
