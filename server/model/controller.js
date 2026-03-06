@@ -55,13 +55,82 @@ async function getIdRepartoByNome(nome) {
 }
 
 async function getMediciByIdRep(idRep) {
-  let query = `SELECT id FROM reparti WHERE idRep = ${idRep}`
+  let query = `SELECT id, nome, cognome FROM dottori WHERE idRep = ${idRep}`
 
   let ris = await eseguiQuery(query)
   console.log(ris)
 
-
   return ris
 }
 
-module.exports = {getUserByMail, getUserById, getVisiteByAnyId, getIdRepartoByNome, getMediciByIdRep}
+async function getAllReparti() {
+  let query = `SELECT id, nomeRep FROM reparti`
+  
+  let ris = await eseguiQuery(query)
+  console.log(ris)
+  
+  return ris
+}
+
+async function getVisiteNonPagate(pazienteId) {
+  let query = `SELECT * FROM visite WHERE idUser = ${pazienteId} AND pagata = false AND stato = 'prenotata'`
+  
+  let ris = await eseguiQuery(query)
+  console.log(ris)
+  
+  return ris
+}
+
+async function createVisita(visita) {
+  let query = `INSERT INTO visite (data, ora, idUser, idMedico, idRep, stato, pagata, importo, note) 
+               VALUES ('${visita.data}', ${visita.ora}, ${visita.pazienteId}, ${visita.medicoId}, 
+               (SELECT id FROM reparti WHERE nomeRep = '${visita.reparto}'), 
+               '${visita.stato}', ${visita.pagata ? 1 : 0}, ${visita.importo}, '${visita.note || ''}')`
+  
+  let ris = await eseguiQuery(query)
+  console.log(ris)
+  
+  return ris
+}
+
+async function updateVisita(id, updates) {
+  let setClauses = Object.entries(updates).map(([key, value]) => {
+    if (key === 'reparto') {
+      return `idRep = (SELECT id FROM reparti WHERE nomeRep = '${value}')`
+    }
+    if (typeof value === 'string') {
+      return `${key} = '${value}'`
+    }
+    if (typeof value === 'boolean') {
+      return `${key} = ${value ? 1 : 0}`
+    }
+    return `${key} = ${value}`
+  }).join(', ')
+  
+  let query = `UPDATE visite SET ${setClauses} WHERE id = ${id}`
+  
+  let ris = await eseguiQuery(query)
+  console.log(ris)
+  
+  return ris
+}
+
+async function deleteVisita(id) {
+  let query = `UPDATE visite SET stato = 'cancellata' WHERE id = ${id}`
+  
+  let ris = await eseguiQuery(query)
+  console.log(ris)
+  
+  return ris
+}
+
+async function pagaVisita(id) {
+  let query = `UPDATE visite SET pagata = true WHERE id = ${id}`
+  
+  let ris = await eseguiQuery(query)
+  console.log(ris)
+  
+  return ris
+}
+
+module.exports = {getUserByMail, getUserById, getVisiteByAnyId, getIdRepartoByNome, getMediciByIdRep, getAllReparti, getVisiteNonPagate, createVisita, updateVisita, deleteVisita, pagaVisita}
