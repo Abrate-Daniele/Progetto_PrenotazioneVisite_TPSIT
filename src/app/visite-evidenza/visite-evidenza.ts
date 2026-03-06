@@ -16,34 +16,45 @@ export class VisiteEvidenza implements OnInit {
     private visiteService: VisiteService,
     private authService: AuthService
   ) {
-    effect(async()=>{
+    effect(async () => {
       const user = this.authService.getCurrentUser();
       if (user?.role === 'paziente') {
-        this.visiteDaPagare.set(await this.visiteService.getVisitaNonPagate(user.id));
+        const visite = await this.visiteService.getVisitaNonPagate(user.id);
+        this.visiteDaPagare.set(visite);
       }
-    })
-
+    });
   }
 
   async ngOnInit() {
-  }
-
-  pagaVisita(visita: Visita) {
-    if (confirm(`Vuoi pagare € ${10} per la visita del ${visita.data}?`)) {
-      this.visiteService.pagaVisita(visita.id);
-      this.visiteDaPagare.update(visite =>
-        visite.filter(v => v.id !== visita.id)
-      );
-      alert('Pagamento effettuato con successo');
+    const user = this.authService.getCurrentUser();
+    if (user?.role === 'paziente') {
+      const visite = await this.visiteService.getVisitaNonPagate(user.id);
+      this.visiteDaPagare.set(visite);
     }
   }
 
-  formatDate(date: Date): string {
-    return new Date(date).toLocaleDateString('it-IT');
+  async pagaVisita(visita: Visita) {
+    if (confirm(`Vuoi pagare € ${visita.importo} per la visita del ${this.formatDate(visita.data)}?`)) {
+      const successo = await this.visiteService.pagaVisita(visita.id);
+      if (successo) {
+        this.visiteDaPagare.update(visite =>
+          visite.filter(v => v.id !== visita.id)
+        );
+        alert('Pagamento effettuato con successo');
+      } else {
+        alert('Errore durante il pagamento');
+      }
+    }
   }
 
-  formatTime(date: Date): string {
+  formatDate(date: Date | string): string {
     const d = new Date(date);
-    return d.getHours() + ':00';
+    return d.toLocaleDateString('it-IT');
+  }
+
+  formatOra(ora: number): string {
+    // ora è un indice da 0-7 che rappresenta le fasce orarie 9:00-17:00
+    const startHour = 9 + ora;
+    return `${startHour}:00 - ${startHour + 1}:00`;
   }
 }

@@ -14,7 +14,8 @@ export class Login {
   isLoginMode = signal(true);
   loginForm: FormGroup;
   registerForm: FormGroup;
-  errLogin:boolean = false;
+  errLogin = false;
+  isLoading = signal(false);
 
   constructor(
     private authService: AuthService,
@@ -24,7 +25,7 @@ export class Login {
     // Crea il form di login
     this.loginForm = this.fb.group({
       role: ['paziente'],
-      email: ['',  [Validators.required, Validators.email]],
+      email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
 
@@ -43,23 +44,40 @@ export class Login {
     this.isLoginMode.set(!this.isLoginMode());
     this.loginForm.reset({ role: 'paziente' });
     this.registerForm.reset({ role: 'paziente' });
+    this.errLogin = false;
   }
 
   async login() {
-
-    if(this.loginForm.valid)
-    {
+    if (this.loginForm.valid) {
+      this.isLoading.set(true);
       const { role, email, password } = this.loginForm.value;
       this.errLogin = await this.authService.login(email, password, role);
+      this.isLoading.set(false);
 
+      if (!this.errLogin) {
+        this.router.navigate(['/homepage']);
+      }
     }
   }
 
-  register() {
-    if(this.registerForm.valid)
-    {
-      const { nome, cognome, role, email, password } = this.registerForm.value;
-      this.authService.register(nome, cognome, email, password, role);
+  async register() {
+    if (this.registerForm.valid) {
+      const { nome, cognome, role, email, password, confirmPassword } = this.registerForm.value;
+
+      if (password !== confirmPassword) {
+        alert('Le password non coincidono');
+        return;
+      }
+
+      this.isLoading.set(true);
+      const errRegister = await this.authService.register(nome, cognome, email, password, role);
+      this.isLoading.set(false);
+
+      if (!errRegister) {
+        this.router.navigate(['/homepage']);
+      } else {
+        alert('Errore durante la registrazione');
+      }
     }
   }
 }

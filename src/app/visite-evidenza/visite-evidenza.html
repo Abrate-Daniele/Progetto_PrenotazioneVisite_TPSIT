@@ -19,7 +19,8 @@
         </thead>
         <tbody>
           <tr *ngFor="let visita of visiteDaPagare()">
-            <td>{{ visita.data }}</td>
+            <td>{{ formatDate(visita.data) }}</td>
+            <td>{{ formatOra(visita.ora) }}</td>
             <td>Dr. {{ visita.medicoNome }} {{ visita.medicoCognome }}</td>
             <td>{{ visita.reparto }}</td>
             <td class="fw-bold">€ {{ visita.importo }}</td>

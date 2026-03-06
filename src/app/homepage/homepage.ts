@@ -36,6 +36,8 @@ export class Homepage implements OnInit {
   reparti = signal<string[]>([]);
   visitaCalendario = signal<Visita[]>([]);
 
+  isLoading = signal(false);
+
   constructor(
     private authService: AuthService,
     private visiteService: VisiteService,
@@ -51,24 +53,26 @@ export class Homepage implements OnInit {
 
     this.currentUser.set(user);
     this.userRole.set(user.role);
+    this.isLoading.set(true);
 
     if (user.role === 'admin') {
       this.reparti.set(await this.visiteService.getTutiReparti());
       if (this.reparti().length > 0) {
         this.selectedReparto.set(this.reparti()[0]);
-        this.updateVisiteAdmin();
+        await this.updateVisiteAdmin();
       }
     } else if (user.role === 'medico') {
       this.visitaCalendario.set(await this.visiteService.getVisiteByMedico(user.id));
     } else if (user.role === 'paziente') {
       this.visitaCalendario.set(await this.visiteService.getVisiteByPaziente(user.id));
     }
+
+    this.isLoading.set(false);
   }
 
   async updateVisiteAdmin() {
-    this.visitaCalendario.set(
-      await this.visiteService.getVisiteByReparto(this.selectedReparto())
-    );
+    const visite = await this.visiteService.getVisiteByReparto(this.selectedReparto());
+    this.visitaCalendario.set(visite);
   }
 
   openNewVisita() {
@@ -88,8 +92,8 @@ export class Homepage implements OnInit {
     this.selectedVisita.set(null);
   }
 
-  logout() {
-    this.authService.logout();
+  async logout() {
+    await this.authService.logout();
     this.router.navigate(['/login']);
   }
 }

@@ -167,7 +167,7 @@ async function updateVisita(id, updates) {
       throw new Error('Nessun campo da aggiornare');
     }
 
-    const query = `UPDATE visite SET ${setClauses.join(', ')} WHERE idVis = ${mysql.escape(id)}`;
+    const query = `UPDATE visite SET ${setClauses.join(', ')} WHERE idVIs = ${mysql.escape(id)}`;
 
     let ris = await eseguiQuery(query);
     console.log('Visita aggiornata:', ris);
@@ -186,7 +186,7 @@ async function deleteVisita(id) {
     }
 
     // Soft delete: marca la visita come cancellata con stato 'C'
-    const query = `UPDATE visite SET stato = 'D' WHERE idVis = ${mysql.escape(id)}`;
+    const query = `UPDATE visite SET stato = 'D' WHERE idVIs = ${mysql.escape(id)}`;
 
     let ris = await eseguiQuery(query);
     console.log('Visita cancellata:', ris);
@@ -204,7 +204,7 @@ async function pagaVisita(id) {
       throw new Error('ID visita non valido');
     }
 
-    let query = `UPDATE visite SET pagata = 1 WHERE idVis = ${mysql.escape(id)}`;
+    let query = `UPDATE visite SET pagata = 1 WHERE idVIs = ${mysql.escape(id)}`;
 
     let ris = await eseguiQuery(query);
     console.log('Visita pagata:', ris);

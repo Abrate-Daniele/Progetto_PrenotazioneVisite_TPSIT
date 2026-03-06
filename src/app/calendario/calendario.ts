@@ -31,7 +31,7 @@ export class Calendario implements OnInit {
     });
   });
 
-  hours = [9, 10, 11, 12, 13, 14, 15, 16, 17]; // Orari 9:00-17:00
+  hours = [9, 10, 11, 12, 13, 14, 15, 16]; // Orari 9:00-17:00 (8 slot da 1 ora)
 
   constructor(private visiteService: VisiteService, private authService: AuthService) {}
 

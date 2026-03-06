@@ -42,7 +42,7 @@ export class DettaglioVisita {
     private authService: AuthService
   ) {
     effect(async () => {
-      console.log(this.visita)
+      console.log('Dettaglio visita - effect:', this.visita());
       this.reparti = await this.visiteService.getTutiReparti();
 
       if (this.visita()) {
@@ -53,7 +53,7 @@ export class DettaglioVisita {
         this.medico = v.medicoId;
         this.reparto = v.reparto;
         this.note = v.note || '';
-        this.loadMedici(v.reparto);
+        await this.loadMedici(v.reparto);
       } else if (this.isNewVisita()) {
         // Modalità di creazione
         const today = new Date();
@@ -61,7 +61,7 @@ export class DettaglioVisita {
         this.ora = 0;
         if (this.reparti.length > 0) {
           this.reparto = this.reparti[0];
-          this.loadMedici(this.reparti[0]);
+          await this.loadMedici(this.reparti[0]);
         }
       }
     });
@@ -81,9 +81,9 @@ export class DettaglioVisita {
     if (this.medico && this.data) {
       const slotDisp = await this.visiteService.getSlotDisponibili(this.medico, this.data);
       // Mappa gli slot disponibili con le loro etichette
-      this.slots_hours = slotDisp.map((slot: any) => ({
-        value: slot.value !== undefined ? slot.value : slot,
-        label: this.allSlots.find(s => s.value === (slot.value !== undefined ? slot.value : slot))?.label || `${slot}:00`
+      this.slots_hours = slotDisp.map((slot: number) => ({
+        value: slot,
+        label: this.allSlots.find(s => s.value === slot)?.label || `${slot + 9}:00`
       }));
       this.ora = 0; // Reset slot quando carico nuovi slot
     }
@@ -116,7 +116,7 @@ export class DettaglioVisita {
     return new Date(dateString + 'T00:00:00');
   }
 
-  saveVisita() {
+  async saveVisita() {
     if (!this.data || !this.reparto || !this.medico || this.ora === 0) {
       alert('Compila tutti i campi obbligatori incluso lo slot orario');
       return;
@@ -124,14 +124,10 @@ export class DettaglioVisita {
 
     if (this.visita()) {
       // Aggiorna una visita esistente
-      // TODO: Validare che la data non sia nel passato
       const dataInizio = this.parseDate(this.data);
       dataInizio.setHours(9 + this.ora);
 
-      const dataFine = new Date(dataInizio);
-      dataFine.setHours(dataFine.getHours() + 1);
-
-      this.visiteService.updateVisita(this.visita()!.id, {
+      const successo = await this.visiteService.updateVisita(this.visita()!.id, {
         data: this.data,
         ora: this.ora,
         medicoId: this.medico,
@@ -139,12 +135,13 @@ export class DettaglioVisita {
         note: this.note,
       });
 
-      alert('Visita aggiornata con successo');
+      if (successo) {
+        alert('Visita aggiornata con successo');
+      } else {
+        alert('Errore durante l\'aggiornamento della visita');
+      }
     } else {
       // Crea una nuova visita
-      const dataInizio = this.parseDate(this.data);
-      dataInizio.setHours(9 + this.ora);
-
       const user = this.authService.getCurrentUser();
       if (!user || user.role !== 'paziente') {
         alert('Solo i pazienti possono prenotare visite');
@@ -165,25 +162,33 @@ export class DettaglioVisita {
         reparto: this.reparto,
         stato: 'prenotata',
         pagata: false,
-        importo: 100, // Non usato nel database, mantiene per compatibilità
+        importo: 100,
         note: this.note,
       };
 
-      this.visiteService.createVisita(nuovaVisita);
-      alert('Visita prenotata con successo');
+      const successo = await this.visiteService.createVisita(nuovaVisita);
+      if (successo) {
+        alert('Visita prenotata con successo');
+      } else {
+        alert('Errore durante la prenotazione della visita');
+      }
     }
   }
 
-  deleteVisita() {
+  async deleteVisita() {
     if (this.visita()) {
       if (confirm('Sei sicuro di voler eliminare questa visita?')) {
-        this.visiteService.deleteVisita(this.visita()!.id);
-        alert('Visita eliminata');
+        const successo = await this.visiteService.deleteVisita(this.visita()!.id);
+        if (successo) {
+          alert('Visita eliminata');
+        } else {
+          alert('Errore durante l\'eliminazione della visita');
+        }
       }
     }
   }
 
   cancel() {
-    // TODO: Chiudere la modale o tornare indietro
+    // Chiudi la modale o torna indietro
   }
 }

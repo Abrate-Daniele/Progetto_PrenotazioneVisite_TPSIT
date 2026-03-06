@@ -12,6 +12,7 @@ import { AuthService, User as UserInterface } from '../services/auth.service';
 export class User implements OnInit {
   isEditing = signal(false);
   user = signal<UserInterface | null>(null);
+  isLoading = signal(false);
 
   // Campi del form
   nome = signal('');
@@ -43,22 +44,37 @@ export class User implements OnInit {
     }
   }
 
-  saveChanges() {
+  async saveChanges() {
     const updates: Partial<UserInterface> = {
       nome: this.nome(),
       cognome: this.cognome(),
       mail: this.email(),
     };
 
-    this.authService.updateProfile(updates);
-    const updatedUser = this.authService.getCurrentUser();
-    if (updatedUser) {
-      this.user.set(updatedUser);
+    this.isLoading.set(true);
+    const successo = await this.authService.updateProfile(updates);
+    this.isLoading.set(false);
+
+    if (successo) {
+      const updatedUser = this.authService.getCurrentUser();
+      if (updatedUser) {
+        this.user.set(updatedUser);
+      }
+      this.isEditing.set(false);
+      alert('Profilo aggiornato con successo');
+    } else {
+      alert('Errore durante l\'aggiornamento del profilo');
     }
-    this.isEditing.set(false);
   }
 
   cancelEdit() {
     this.isEditing.set(false);
+    // Ripristina i valori originali
+    const user = this.user();
+    if (user) {
+      this.nome.set(user.nome);
+      this.cognome.set(user.cognome);
+      this.email.set(user.mail);
+    }
   }
 }
