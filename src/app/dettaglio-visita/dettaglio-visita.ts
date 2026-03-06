@@ -23,10 +23,10 @@ export class DettaglioVisita {
 
   medici: any[] = [];
   reparti: string[] = [];
-  slots = Array.from({ length: 8 }, (_, i) => ({ value: i, label: (9 + i) + ':00' }));
+  slots_hours: any[] = [];
 
-  // Slot orari in formato leggibile
-  slots_hours = [
+  // Slot orari di default (per riferimento)
+  allSlots = [
     { value: 0, label: '09:00 - 10:00' },
     { value: 1, label: '10:00 - 11:00' },
     { value: 2, label: '11:00 - 12:00' },
@@ -72,12 +72,33 @@ export class DettaglioVisita {
     
     if (this.medici.length > 0) {
       this.medico = this.medici[0].id;
+      // Carica gli slot disponibili per il medico selezionato
+      await this.loadSlotDisponibili();
+    }
+  }
+
+  async loadSlotDisponibili() {
+    if (this.medico && this.data) {
+      const slotDisp = await this.visiteService.getSlotDisponibili(this.medico, this.data);
+      // Mappa gli slot disponibili con le loro etichette
+      this.slots_hours = slotDisp.map((slot: any) => ({
+        value: slot.value !== undefined ? slot.value : slot,
+        label: this.allSlots.find(s => s.value === (slot.value !== undefined ? slot.value : slot))?.label || `${slot}:00`
+      }));
+      this.ora = 0; // Reset slot quando carico nuovi slot
     }
   }
 
   onRepartoChange() {
     this.loadMedici(this.reparto);
-    this.ora = 0; // Reset slot orario quando cambio reparto
+  }
+
+  onMedicoChange() {
+    this.loadSlotDisponibili();
+  }
+
+  onDataChange() {
+    this.loadSlotDisponibili();
   }
 
   isFormValid(): boolean {

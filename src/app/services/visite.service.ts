@@ -184,4 +184,20 @@ export class VisiteService {
     }
     return [];
   }
+
+  async getSlotDisponibili(medicoId: number, data: string): Promise<any[]> {
+    const response = await fetch(`http://localhost:8081/getSlotDisponibili`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ medicoId, data })
+    });
+
+    const result = await response.json();
+    console.log(result)
+    if (result.status === 'success') {
+      return result.data;
+    }
+    return [];
+  }
 }

@@ -8,13 +8,14 @@
   <div class="card-body">
     <div class="mb-3">
       <label class="form-label fw-bold">Data *</label>
-      <input type="date" class="form-control" [(ngModel)]="data" />
+      <input type="date" class="form-control" [(ngModel)]="data" (change)="onDataChange()" />
     </div>
 
     <div class="mb-3">
       <label class="form-label fw-bold">Slot Orario *</label>
-      <select class="form-select" [(ngModel)]="ora" [disabled]="!isFormValid()">
+      <select class="form-select" [(ngModel)]="ora" [disabled]="!isFormValid() || slots_hours.length === 0">
         <option *ngIf="!isFormValid()" value="">Seleziona prima data, reparto e medico</option>
+        <option *ngIf="isFormValid() && slots_hours.length === 0" value="">Nessuno slot disponibile</option>
         <option *ngFor="let slot of slots_hours" [value]="slot.value">
           {{ slot.label }}
         </option>
@@ -32,7 +33,7 @@
 
     <div class="mb-3">
       <label class="form-label fw-bold">Medico *</label>
-      <select class="form-select" [(ngModel)]="medico">
+      <select class="form-select" [(ngModel)]="medico" (change)="onMedicoChange()">
         <option *ngFor="let med of medici" [value]="med.id">
           Dr. {{ med.nome }} {{ med.cognome }}
         </option>
