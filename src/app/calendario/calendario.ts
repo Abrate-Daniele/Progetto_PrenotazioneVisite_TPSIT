@@ -11,6 +11,7 @@ import { AuthService } from '../services/auth.service';
 })
 export class Calendario implements OnInit {
   @Input() visite: Visita[] = [];
+
   @Output() visitaClicked = new EventEmitter<Visita>();
 
   user: any = null;

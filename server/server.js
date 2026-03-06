@@ -38,7 +38,7 @@ app.use(expressSession({
 
 app.post('/login', async (richiesta, risposta)=>{
   let data = richiesta.body
-  console.log(data)
+
   let role = {}
   switch(data.role)
   {
@@ -63,16 +63,16 @@ app.post('/login', async (richiesta, risposta)=>{
   }
 
   let idUser = await db.getUserByMail(data.email, role.table);
-  console.log(idUser)
+
   let pwd = await db.getUserById("password", role.table, idUser)
-  console.log(pwd)
+
   if(data.password == pwd.password)
   {
 
     let user = await db.getUserById(role.campi, role.table, idUser)
     richiesta.session.userID = idUser
     user.role = role.role
-    console.log(user)
+    //console.log(user)
     risposta.send({status: 'success', data: user})
 
   }
@@ -88,9 +88,9 @@ app.post('/getVisiteByPaziente', async (richiesta, risposta)=>{
   let idUser = data.pazienteId
 
   let visite = await db.getVisiteByAnyId('idUser', idUser)
-
   let ris = await parseVisite(visite)
 
+  //console.log(ris)
   risposta.send({status: 'success', data: ris})
 })
 
@@ -101,6 +101,7 @@ app.post('/getVisiteByMedico', async (richiesta, risposta)=>{
   let visite = await db.getVisiteByAnyId('idMedico', idMedico)
 
   let ris = await parseVisite(visite)
+  //console.log(ris)
 
   risposta.send({status: 'success', data: ris})
 })
@@ -114,6 +115,7 @@ app.post('/getVisiteByReparto', async (richiesta, risposta)=>{
   let visite = await db.getVisiteByAnyId('idRep', idReparto[0].id)
 
   let ris = await parseVisite(visite)
+  //console.log(ris)
 
   risposta.send({status: 'success', data: ris})
 })
@@ -125,6 +127,7 @@ app.post('/getVisiteByPazienteNP', async (richiesta, risposta)=>{
   let visite = await db.getVisiteNonPagate(idUser)
 
   let ris = await parseVisite(visite)
+  console.log(ris)
 
   risposta.send({status: 'success', data: ris})
 })
@@ -136,6 +139,7 @@ app.post('/getMediciByReparto', async (richiesta, risposta)=>{
   let idReparto = await db.getIdRepartoByNome(rep)
 
   let medici = await db.getMediciByIdRep(idReparto[0].id)
+  //console.log(medici)
 
   risposta.send({status: 'success', data: medici})
 })
@@ -144,6 +148,7 @@ app.post('/getAllReparti', async (richiesta, risposta)=>{
   let reparti = await db.getAllReparti()
 
   let repartiNomi = reparti.map(r => r.nomeRep)
+  //console.log(repartiNomi)
 
   risposta.send({status: 'success', data: repartiNomi})
 })
@@ -167,6 +172,7 @@ app.post('/updateVisita', async (richiesta, risposta)=>{
     delete updates.id;
 
     let result = await db.updateVisita(id, updates);
+
     risposta.send({status: 'success', data: result});
   } catch (error) {
     console.error('Errore nell\'aggiornamento della visita:', error);
@@ -215,7 +221,7 @@ app.post('/getSlotDisponibili', async (richiesta, risposta)=>{
 async function parseVisite(visite)
 {
   let ris = []
-  console.log(visite)
+  //console.log(visite)
   for(let i = 0; i < visite.length; i++)
   {
     let user = await db.getUserById('nome, cognome', 'user', visite[i].idUser)
@@ -230,7 +236,7 @@ async function parseVisite(visite)
     let reparto = await db.getUserById('nomeRep', 'reparti', visite[i].idRep)
 
     visite[i].reparto = reparto.nomeRep
-    console.log(visite[i])
+    //console.log(visite[i])
     ris.push(visite[i])
   }
 

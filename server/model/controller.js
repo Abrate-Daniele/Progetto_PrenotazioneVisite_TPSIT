@@ -24,22 +24,21 @@ async function eseguiQuery(query){
 async function getUserByMail(mail, table) {
   let query = `SELECT id FROM ${table} WHERE mail = '${mail}' `
   let ris = await eseguiQuery(query)
-  //console.log(ris)
+
   return ris[0]?.id
 }
 
 async function getUserById(campi, table, id) {
   let query = `SELECT ${campi} FROM ${table} WHERE id = ${id}`
   let ris = await eseguiQuery(query)
-  //console.log(ris)
+
   return ris[0]
 }
 
 async function getVisiteByAnyId(campo, valore) {
-  let query = `SELECT idVIs, DATE_FORMAT(data, '%Y-%m-%d') AS data, ora, idUser, idMedico, idRep, pagata, stato, note FROM visite WHERE ${campo} = ${valore} AND stato != 'D'`
+  let query = `SELECT idVis, DATE_FORMAT(data, '%Y-%m-%d') AS data, ora, idUser, idMedico, idRep, pagata, stato, note FROM visite WHERE ${campo} = ${valore} AND stato != 'D'`
 
   let ris = await eseguiQuery(query)
-  console.log(ris)
 
   return ris
 }
@@ -48,8 +47,6 @@ async function getIdRepartoByNome(nome) {
   let query = `SELECT id FROM reparti WHERE nomeRep = '${nome}'`
 
   let ris = await eseguiQuery(query)
-  console.log(ris)
-
 
   return ris
 }
@@ -58,7 +55,6 @@ async function getMediciByIdRep(idRep) {
   let query = `SELECT id, nome, cognome FROM dottori WHERE idRep = ${idRep}`
 
   let ris = await eseguiQuery(query)
-  console.log(ris)
 
   return ris
 }
@@ -67,16 +63,14 @@ async function getAllReparti() {
   let query = `SELECT id, nomeRep FROM reparti`
 
   let ris = await eseguiQuery(query)
-  console.log(ris)
 
   return ris
 }
 
 async function getVisiteNonPagate(pazienteId) {
-  let query = `SELECT ora FROM visite WHERE idUser = ${pazienteId} AND pagata = false AND stato = 'prenotata'`
+  let query = `SELECT idVis, DATE_FORMAT(data, '%Y-%m-%d') AS data, ora, idUser, idMedico, idRep, pagata, stato, note FROM visite WHERE idUser = ${pazienteId} AND pagata = FALSE AND stato != 'D'`
 
   let ris = await eseguiQuery(query)
-  console.log(ris)
 
   return ris
 }
@@ -85,7 +79,6 @@ async function getVisiteByMedicoEData(medicoId, data) {
   let query = `SELECT ora FROM visite WHERE idMedico = ${medicoId} AND data = '${data}' AND stato != 'D'`
 
   let ris = await eseguiQuery(query)
-  console.log(ris)
 
   return ris
 }
@@ -112,7 +105,6 @@ async function createVisita(visita) {
                            ${visita.pagata ? 1 : 0}, ${mysql.escape(visita.note || '')})`;
 
     let ris = await eseguiQuery(query);
-    console.log('Visita creata:', ris);
     return ris;
   } catch (error) {
     console.error('Errore nella creazione della visita:', error.message);
@@ -167,10 +159,9 @@ async function updateVisita(id, updates) {
       throw new Error('Nessun campo da aggiornare');
     }
 
-    const query = `UPDATE visite SET ${setClauses.join(', ')} WHERE idVIs = ${mysql.escape(id)}`;
+    const query = `UPDATE visite SET ${setClauses.join(', ')} WHERE idVis = ${mysql.escape(id)}`;
 
     let ris = await eseguiQuery(query);
-    console.log('Visita aggiornata:', ris);
     return ris;
   } catch (error) {
     console.error('Errore nell\'aggiornamento della visita:', error.message);
@@ -186,10 +177,9 @@ async function deleteVisita(id) {
     }
 
     // Soft delete: marca la visita come cancellata con stato 'C'
-    const query = `UPDATE visite SET stato = 'D' WHERE idVIs = ${mysql.escape(id)}`;
+    const query = `UPDATE visite SET stato = 'D' WHERE idVis = ${mysql.escape(id)}`;
 
     let ris = await eseguiQuery(query);
-    console.log('Visita cancellata:', ris);
     return ris;
   } catch (error) {
     console.error('Errore nell\'eliminazione della visita:', error.message);
@@ -204,10 +194,9 @@ async function pagaVisita(id) {
       throw new Error('ID visita non valido');
     }
 
-    let query = `UPDATE visite SET pagata = 1 WHERE idVIs = ${mysql.escape(id)}`;
+    let query = `UPDATE visite SET pagata = 1 WHERE idVis = ${mysql.escape(id)}`;
 
     let ris = await eseguiQuery(query);
-    console.log('Visita pagata:', ris);
 
     return ris;
   } catch (error) {
@@ -237,7 +226,6 @@ async function getSlotDisponibili(medicoId, data) {
       !oreOcc.some(occ => occ.ora === slot)
     );
 
-    console.log('Slot disponibili:', slotsDisponibili);
     return slotsDisponibili;
   } catch (error) {
     console.error('Errore nel recupero degli slot disponibili:', error.message);

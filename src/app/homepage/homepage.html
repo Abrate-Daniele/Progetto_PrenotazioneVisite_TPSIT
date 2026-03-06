@@ -35,7 +35,7 @@
       <!-- Sezione Visite in Evidenza -->
       <div class="row mb-4">
         <div class="col-md-12">
-          <app-visite-evidenza></app-visite-evidenza>
+          <app-visite-evidenza (updateVisite)="updateVisite()"></app-visite-evidenza>
         </div>
       </div>
     </div>
@@ -113,7 +113,7 @@
             <button type="button" class="btn-close" (click)="closeDettaglioVisita()"></button>
           </div>
           <div class="modal-body">
-            <app-dettaglio-visita [visita]="selectedVisita()" [isNewVisita]="isNewVisita()"></app-dettaglio-visita>
+            <app-dettaglio-visita [visita]="selectedVisita()" [isNewVisita]="isNewVisita()" (updateVisite)="updateVisite()"></app-dettaglio-visita>
           </div>
         </div>
       </div>

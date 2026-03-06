@@ -1,4 +1,4 @@
-import { Component, signal, OnInit, effect } from '@angular/core';
+import { Component, signal, OnInit, effect, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Visita, VisiteService } from '../services/visite.service';
 import { AuthService } from '../services/auth.service';
@@ -10,6 +10,7 @@ import { AuthService } from '../services/auth.service';
   styleUrl: './visite-evidenza.css',
 })
 export class VisiteEvidenza implements OnInit {
+  @Output() updateVisite = new EventEmitter<void>();
   visiteDaPagare = signal<Visita[]>([]);
 
   constructor(
@@ -35,12 +36,13 @@ export class VisiteEvidenza implements OnInit {
 
   async pagaVisita(visita: Visita) {
     if (confirm(`Vuoi pagare € ${visita.importo} per la visita del ${this.formatDate(visita.data)}?`)) {
-      const successo = await this.visiteService.pagaVisita(visita.id);
+      const successo = await this.visiteService.pagaVisita(visita.idVis);
       if (successo) {
         this.visiteDaPagare.update(visite =>
-          visite.filter(v => v.id !== visita.id)
+          visite.filter(v => v.idVis !== visita.idVis)
         );
         alert('Pagamento effettuato con successo');
+        this.updateVisite.emit()
       } else {
         alert('Errore durante il pagamento');
       }

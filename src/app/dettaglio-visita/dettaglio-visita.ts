@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Visita, VisiteService } from '../services/visite.service';
 import { AuthService } from '../services/auth.service';
+import { Output, EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'app-dettaglio-visita',
@@ -11,6 +12,8 @@ import { AuthService } from '../services/auth.service';
   styleUrl: './dettaglio-visita.css',
 })
 export class DettaglioVisita {
+  @Output() updateVisite = new EventEmitter<void>();
+
   visita = input<Visita | null>(null);
   isNewVisita = input(false);
 
@@ -117,7 +120,7 @@ export class DettaglioVisita {
   }
 
   async saveVisita() {
-    if (!this.data || !this.reparto || !this.medico || this.ora === 0) {
+    if (!this.data || !this.reparto || !this.medico) {
       alert('Compila tutti i campi obbligatori incluso lo slot orario');
       return;
     }
@@ -126,8 +129,8 @@ export class DettaglioVisita {
       // Aggiorna una visita esistente
       const dataInizio = this.parseDate(this.data);
       dataInizio.setHours(9 + this.ora);
-
-      const successo = await this.visiteService.updateVisita(this.visita()!.id, {
+      console.log(this.visita()?.idVis)
+      const successo = await this.visiteService.updateVisita(this.visita()!.idVis, {
         data: this.data,
         ora: this.ora,
         medicoId: this.medico,
@@ -137,6 +140,7 @@ export class DettaglioVisita {
 
       if (successo) {
         alert('Visita aggiornata con successo');
+        this.updateVisite.emit()
       } else {
         alert('Errore durante l\'aggiornamento della visita');
       }
@@ -150,7 +154,7 @@ export class DettaglioVisita {
 
       const medico = this.medici.find(m => m.id === this.medico);
 
-      const nuovaVisita: Omit<Visita, 'id'> = {
+      const nuovaVisita: Omit<Visita, 'idVis'> = {
         data: this.data,
         ora: this.ora,
         pazienteId: user.id,
@@ -169,6 +173,7 @@ export class DettaglioVisita {
       const successo = await this.visiteService.createVisita(nuovaVisita);
       if (successo) {
         alert('Visita prenotata con successo');
+        this.updateVisite.emit()
       } else {
         alert('Errore durante la prenotazione della visita');
       }
@@ -178,9 +183,10 @@ export class DettaglioVisita {
   async deleteVisita() {
     if (this.visita()) {
       if (confirm('Sei sicuro di voler eliminare questa visita?')) {
-        const successo = await this.visiteService.deleteVisita(this.visita()!.id);
+        const successo = await this.visiteService.deleteVisita(this.visita()!.idVis);
         if (successo) {
           alert('Visita eliminata');
+          this.updateVisite.emit()
         } else {
           alert('Errore durante l\'eliminazione della visita');
         }

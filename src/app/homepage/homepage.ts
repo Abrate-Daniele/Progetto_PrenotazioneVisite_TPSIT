@@ -70,6 +70,21 @@ export class Homepage implements OnInit {
     this.isLoading.set(false);
   }
 
+  async updateVisite() {
+    const user = this.authService.getCurrentUser()
+    if(user?.role == 'paziente')
+    {
+      const visite = await this.visiteService.getVisiteByPaziente(user.id);
+      this.visitaCalendario.set(visite);
+    }
+    else if(user?.role == 'medico')
+    {
+      const visite = await this.visiteService.getVisiteByMedico(user.id);
+      this.visitaCalendario.set(visite);
+    }
+  }
+
+
   async updateVisiteAdmin() {
     const visite = await this.visiteService.getVisiteByReparto(this.selectedReparto());
     this.visitaCalendario.set(visite);

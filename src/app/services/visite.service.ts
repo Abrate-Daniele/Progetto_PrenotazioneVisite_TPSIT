@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 
 export interface Visita {
-  id: number;
+  idVis: number;
   data: string;
   ora: number;
   pazienteId: number;
@@ -104,7 +104,7 @@ export class VisiteService {
     return [];
   }
 
-  async createVisita(visita: Omit<Visita, 'id'>): Promise<boolean> {
+  async createVisita(visita: Omit<Visita, 'idVis'>): Promise<boolean> {
     try {
       const response = await fetch(`${this.API_URL}/createVisita`, {
         method: 'POST',
@@ -141,7 +141,7 @@ export class VisiteService {
       if (data.status === 'success') {
         // Aggiorna il signal locale
         this.visite.update(visite =>
-          visite.map(v => v.id === id ? { ...v, ...updates } : v)
+          visite.map(v => v.idVis === id ? { ...v, ...updates } : v)
         );
         return true;
       }
@@ -164,7 +164,7 @@ export class VisiteService {
       console.log('Delete visita:', data);
       if (data.status === 'success') {
         this.visite.update(visite =>
-          visite.filter(v => v.id !== id)
+          visite.filter(v => v.idVis !== id)
         );
         return true;
       }
@@ -187,7 +187,7 @@ export class VisiteService {
       console.log('Paga visita:', data);
       if (data.status === 'success') {
         this.visite.update(visite =>
-          visite.map(v => v.id === id ? { ...v, pagata: true } : v)
+          visite.map(v => v.idVis === id ? { ...v, pagata: true } : v)
         );
         return true;
       }
