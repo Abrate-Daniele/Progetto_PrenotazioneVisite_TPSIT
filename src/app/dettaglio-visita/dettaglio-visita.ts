@@ -15,11 +15,11 @@ export class DettaglioVisita {
   isNewVisita = input(false);
 
   // Campi del form
-  data = signal<string>('');
-  ora = signal<number>(0);
-  medico = signal<number>(0);
-  reparto = signal<string>('');
-  note = signal<string>('');
+  data: string = '';
+  ora: number = 0;
+  medico: number = 0;
+  reparto: string = '';
+  note: string = '';
 
   medici: any[] = [];
   reparti: string[] = [];
@@ -48,19 +48,19 @@ export class DettaglioVisita {
       if (this.visita()) {
         // Modalità di modifica
         const v = this.visita()!;
-        this.data.set(typeof v.data === 'string' ? v.data : this.formatDate(v.data));
-        this.ora.set(v.ora);
-        this.medico.set(v.medicoId);
-        this.reparto.set(v.reparto);
-        this.note.set(v.note || '');
+        this.data = typeof v.data === 'string' ? v.data : this.formatDate(v.data);
+        this.ora = v.ora;
+        this.medico = v.medicoId;
+        this.reparto = v.reparto;
+        this.note = v.note || '';
         this.loadMedici(v.reparto);
       } else if (this.isNewVisita()) {
         // Modalità di creazione
         const today = new Date();
-        this.data.set(this.formatDate(today));
-        this.ora.set(0);
+        this.data = this.formatDate(today);
+        this.ora = 0;
         if (this.reparti.length > 0) {
-          this.reparto.set(this.reparti[0]);
+          this.reparto = this.reparti[0];
           this.loadMedici(this.reparti[0]);
         }
       }
@@ -71,12 +71,17 @@ export class DettaglioVisita {
     this.medici = await this.visiteService.getMediciByReparto(reparto);
     
     if (this.medici.length > 0) {
-      this.medico.set(this.medici[0].id);
+      this.medico = this.medici[0].id;
     }
   }
 
   onRepartoChange() {
-    this.loadMedici(this.reparto());
+    this.loadMedici(this.reparto);
+    this.ora = 0; // Reset slot orario quando cambio reparto
+  }
+
+  isFormValid(): boolean {
+    return this.data !== '' && this.reparto !== '' && this.medico !== 0;
   }
 
   formatDate(date: Date): string {
@@ -91,33 +96,33 @@ export class DettaglioVisita {
   }
 
   saveVisita() {
-    if (!this.data() || !this.reparto() || !this.medico()) {
-      alert('Compila tutti i campi obbligatori');
+    if (!this.data || !this.reparto || !this.medico || this.ora === 0) {
+      alert('Compila tutti i campi obbligatori incluso lo slot orario');
       return;
     }
 
     if (this.visita()) {
       // Aggiorna una visita esistente
       // TODO: Validare che la data non sia nel passato
-      const dataInizio = this.parseDate(this.data());
-      dataInizio.setHours(9 + this.ora());
+      const dataInizio = this.parseDate(this.data);
+      dataInizio.setHours(9 + this.ora);
 
       const dataFine = new Date(dataInizio);
       dataFine.setHours(dataFine.getHours() + 1);
 
       this.visiteService.updateVisita(this.visita()!.id, {
-        data: this.parseDate(this.data()),
-        ora: this.ora(),
-        medicoId: this.medico(),
-        reparto: this.reparto(),
-        note: this.note(),
+        data: this.parseDate(this.data),
+        ora: this.ora,
+        medicoId: this.medico,
+        reparto: this.reparto,
+        note: this.note,
       });
 
       alert('Visita aggiornata con successo');
     } else {
       // Crea una nuova visita
-      const dataInizio = this.parseDate(this.data());
-      dataInizio.setHours(9 + this.ora());
+      const dataInizio = this.parseDate(this.data);
+      dataInizio.setHours(9 + this.ora);
 
       const dataFine = new Date(dataInizio);
       dataFine.setHours(dataFine.getHours() + 1);
@@ -128,22 +133,22 @@ export class DettaglioVisita {
         return;
       }
 
-      const medico = this.medici.find(m => m.id === this.medico());
+      const medico = this.medici.find(m => m.id === this.medico);
 
       const nuovaVisita: Omit<Visita, 'id'> = {
-        data: this.parseDate(this.data()),
-        ora: this.ora(),
+        data: this.parseDate(this.data),
+        ora: this.ora,
         pazienteId: user.id,
         pazienteNome: user.nome,
         pazienteCognome: user.cognome,
-        medicoId: this.medico(),
+        medicoId: this.medico,
         medicoNome: medico?.nome || '',
         medicoCognome: medico?.cognome || '',
-        reparto: this.reparto(),
+        reparto: this.reparto,
         stato: 'prenotata',
         pagata: false,
         importo: 100,
-        note: this.note(),
+        note: this.note,
       };
 
       this.visiteService.createVisita(nuovaVisita);
