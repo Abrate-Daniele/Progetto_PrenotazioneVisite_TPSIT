@@ -29,7 +29,7 @@ export class VisiteEvidenza implements OnInit {
   }
 
   pagaVisita(visita: Visita) {
-    if (confirm(`Vuoi pagare € ${10} per la visita del ${this.formatDate(visita.data)}?`)) {
+    if (confirm(`Vuoi pagare € ${10} per la visita del ${visita.data}?`)) {
       this.visiteService.pagaVisita(visita.id);
       this.visiteDaPagare.update(visite =>
         visite.filter(v => v.id !== visita.id)

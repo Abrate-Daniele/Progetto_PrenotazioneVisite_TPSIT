@@ -2,7 +2,7 @@ import { Injectable, signal } from '@angular/core';
 
 export interface Visita {
   id: number;
-  data: Date;
+  data: string;
   ora: number;
   pazienteId: number;
   pazienteNome: string;

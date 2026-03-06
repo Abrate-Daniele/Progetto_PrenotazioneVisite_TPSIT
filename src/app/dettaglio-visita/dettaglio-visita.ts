@@ -69,7 +69,7 @@ export class DettaglioVisita {
 
   async loadMedici(reparto: string) {
     this.medici = await this.visiteService.getMediciByReparto(reparto);
-    
+
     if (this.medici.length > 0) {
       this.medico = this.medici[0].id;
       // Carica gli slot disponibili per il medico selezionato
@@ -132,7 +132,7 @@ export class DettaglioVisita {
       dataFine.setHours(dataFine.getHours() + 1);
 
       this.visiteService.updateVisita(this.visita()!.id, {
-        data: this.parseDate(this.data),
+        data: this.data,
         ora: this.ora,
         medicoId: this.medico,
         reparto: this.reparto,
@@ -145,9 +145,6 @@ export class DettaglioVisita {
       const dataInizio = this.parseDate(this.data);
       dataInizio.setHours(9 + this.ora);
 
-      const dataFine = new Date(dataInizio);
-      dataFine.setHours(dataFine.getHours() + 1);
-
       const user = this.authService.getCurrentUser();
       if (!user || user.role !== 'paziente') {
         alert('Solo i pazienti possono prenotare visite');
@@ -157,7 +154,7 @@ export class DettaglioVisita {
       const medico = this.medici.find(m => m.id === this.medico);
 
       const nuovaVisita: Omit<Visita, 'id'> = {
-        data: this.parseDate(this.data),
+        data: this.data,
         ora: this.ora,
         pazienteId: user.id,
         pazienteNome: user.nome,

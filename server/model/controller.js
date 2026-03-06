@@ -36,7 +36,7 @@ async function getUserById(campi, table, id) {
 }
 
 async function getVisiteByAnyId(campo, valore) {
-  let query = `SELECT * FROM visite WHERE ${campo} = ${valore} AND stato != 'C'`
+  let query = `SELECT idVIs, DATE_FORMAT(data, '%Y-%m-%d') AS data, ora, idUser, idMedico, idRep, pagata, stato, note FROM visite WHERE ${campo} = ${valore} AND stato != 'D'`
 
   let ris = await eseguiQuery(query)
   console.log(ris)
@@ -82,7 +82,7 @@ async function getVisiteNonPagate(pazienteId) {
 }
 
 async function getVisiteByMedicoEData(medicoId, data) {
-  let query = `SELECT ora FROM visite WHERE idMedico = ${medicoId} AND data = '${data}' AND stato != 'C'`
+  let query = `SELECT ora FROM visite WHERE idMedico = ${medicoId} AND data = '${data}' AND stato != 'D'`
 
   let ris = await eseguiQuery(query)
   console.log(ris)
@@ -106,9 +106,9 @@ async function createVisita(visita) {
 
     // Inserisce la nuova visita (senza colonne derivate che sono calcolate dal client)
     const query = `INSERT INTO visite (data, ora, idUser, idMedico, idRep, stato, pagata, note)
-                   VALUES (${mysql.escape(visita.data)}, ${mysql.escape(visita.ora)}, 
-                           ${mysql.escape(visita.pazienteId)}, ${mysql.escape(visita.medicoId)}, 
-                           ${idRep}, ${mysql.escape(visita.stato || 'prenotata')}, 
+                   VALUES (${mysql.escape(visita.data)}, ${mysql.escape(visita.ora)},
+                           ${mysql.escape(visita.pazienteId)}, ${mysql.escape(visita.medicoId)},
+                           ${idRep}, ${mysql.escape(visita.stato || 'prenotata')},
                            ${visita.pagata ? 1 : 0}, ${mysql.escape(visita.note || '')})`;
 
     let ris = await eseguiQuery(query);
@@ -186,7 +186,7 @@ async function deleteVisita(id) {
     }
 
     // Soft delete: marca la visita come cancellata con stato 'C'
-    const query = `UPDATE visite SET stato = 'C' WHERE idVis = ${mysql.escape(id)}`;
+    const query = `UPDATE visite SET stato = 'D' WHERE idVis = ${mysql.escape(id)}`;
 
     let ris = await eseguiQuery(query);
     console.log('Visita cancellata:', ris);
@@ -203,7 +203,7 @@ async function pagaVisita(id) {
     if (!id || isNaN(id)) {
       throw new Error('ID visita non valido');
     }
-    
+
     let query = `UPDATE visite SET pagata = 1 WHERE idVis = ${mysql.escape(id)}`;
 
     let ris = await eseguiQuery(query);
@@ -225,15 +225,15 @@ async function getSlotDisponibili(medicoId, data) {
 
     // Ottieni gli slot già prenotati per questo medico in questa data
     const oreOcc = await eseguiQuery(
-      `SELECT ora FROM visite WHERE idMedico = ${mysql.escape(medicoId)} 
-       AND data = ${mysql.escape(data)} AND stato != 'C'`
+      `SELECT ora FROM visite WHERE idMedico = ${mysql.escape(medicoId)}
+       AND data = ${mysql.escape(data)} AND stato != 'D'`
     );
 
     // Tutti gli slot orari disponibili
     const allSlots = [0, 1, 2, 3, 4, 5, 6, 7];
 
     // Filtra gli slot disponibili (quelli non prenotati)
-    const slotsDisponibili = allSlots.filter(slot => 
+    const slotsDisponibili = allSlots.filter(slot =>
       !oreOcc.some(occ => occ.ora === slot)
     );
 
