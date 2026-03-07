@@ -17,7 +17,6 @@ export class DettaglioVisita {
   visita = input<Visita | null>(null);
   isNewVisita = input(false);
 
-  // Campi del form
   data: string = '';
   ora: number = 0;
   medico: number = 0;
@@ -28,7 +27,6 @@ export class DettaglioVisita {
   reparti: string[] = [];
   slots_hours: any[] = [];
 
-  // Slot orari di default (per riferimento)
   allSlots = [
     { value: 0, label: '09:00 - 10:00' },
     { value: 1, label: '10:00 - 11:00' },
@@ -44,12 +42,11 @@ export class DettaglioVisita {
     private visiteService: VisiteService,
     private authService: AuthService
   ) {
+    // Aggiorna le visite quando si aggiunge, modifica o elimina una visita
     effect(async () => {
-      console.log('Dettaglio visita - effect:', this.visita());
       this.reparti = await this.visiteService.getTutiReparti();
 
       if (this.visita()) {
-        // Modalità di modifica
         const v = this.visita()!;
         this.data = typeof v.data === 'string' ? v.data : this.formatDate(v.data);
         this.ora = v.ora;
@@ -58,7 +55,6 @@ export class DettaglioVisita {
         this.note = v.note || '';
         await this.loadMedici(v.reparto);
       } else if (this.isNewVisita()) {
-        // Modalità di creazione
         const today = new Date();
         this.data = this.formatDate(today);
         this.ora = 0;
@@ -75,7 +71,6 @@ export class DettaglioVisita {
 
     if (this.medici.length > 0) {
       this.medico = this.medici[0].id;
-      // Carica gli slot disponibili per il medico selezionato
       await this.loadSlotDisponibili();
     }
   }
@@ -83,7 +78,6 @@ export class DettaglioVisita {
   async loadSlotDisponibili() {
     if (this.medico && this.data) {
       const slotDisp = await this.visiteService.getSlotDisponibili(this.medico, this.data);
-      // Mappa gli slot disponibili con le loro etichette
       this.slots_hours = slotDisp.map((slot: number) => ({
         value: slot,
         label: this.allSlots.find(s => s.value === slot)?.label || `${slot + 9}:00`
@@ -126,10 +120,8 @@ export class DettaglioVisita {
     }
 
     if (this.visita()) {
-      // Aggiorna una visita esistente
       const dataInizio = this.parseDate(this.data);
       dataInizio.setHours(9 + this.ora);
-      console.log(this.visita()?.idVis)
       const successo = await this.visiteService.updateVisita(this.visita()!.idVis, {
         data: this.data,
         ora: this.ora,
@@ -145,7 +137,6 @@ export class DettaglioVisita {
         alert('Errore durante l\'aggiornamento della visita');
       }
     } else {
-      // Crea una nuova visita
       const user = this.authService.getCurrentUser();
       if (!user || user.role !== 'paziente') {
         alert('Solo i pazienti possono prenotare visite');
@@ -195,6 +186,5 @@ export class DettaglioVisita {
   }
 
   cancel() {
-    // Chiudi la modale o torna indietro
   }
 }

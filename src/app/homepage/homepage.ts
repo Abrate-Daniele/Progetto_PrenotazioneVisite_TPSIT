@@ -23,18 +23,19 @@ import { VisiteEvidenza } from '../visite-evidenza/visite-evidenza';
   styleUrl: './homepage.css',
 })
 export class Homepage implements OnInit {
+  // Utente e ruolo correnti
   currentUser = signal<User | null>(null);
   userRole = signal<UserRole | null>(null);
 
-  // Per i dettagli della visita
   selectedVisita = signal<Visita | null>(null);
   showDettaglioVisita = signal(false);
   isNewVisita = signal(false);
 
-  // Per il calendario dell'admin
   selectedReparto = signal<string>('');
   reparti = signal<string[]>([]);
   visitaCalendario = signal<Visita[]>([]);
+
+  reloadVisiteEvidenza = signal(0);
 
   isLoading = signal(false);
 
@@ -44,6 +45,7 @@ export class Homepage implements OnInit {
     private router: Router
   ) {}
 
+  // Inizializza la dashboard a seconda del ruolo
   async ngOnInit() {
     const user = this.authService.getCurrentUser();
     if (!user) {
@@ -70,26 +72,30 @@ export class Homepage implements OnInit {
     this.isLoading.set(false);
   }
 
+  // Ricarica le visite del calendario per paziente/medico
   async updateVisite() {
-    const user = this.authService.getCurrentUser()
-    if(user?.role == 'paziente')
-    {
+    const user = this.authService.getCurrentUser();
+    if (user?.role === 'paziente') {
       const visite = await this.visiteService.getVisiteByPaziente(user.id);
       this.visitaCalendario.set(visite);
-    }
-    else if(user?.role == 'medico')
-    {
+    } else if (user?.role === 'medico') {
       const visite = await this.visiteService.getVisiteByMedico(user.id);
       this.visitaCalendario.set(visite);
     }
+
+    this.reloadVisiteEvidenza.update(v => v + 1);
   }
 
 
+  // Ricarica le visite del calendario per l'admin in base al reparto
   async updateVisiteAdmin() {
     const visite = await this.visiteService.getVisiteByReparto(this.selectedReparto());
     this.visitaCalendario.set(visite);
+
+    this.reloadVisiteEvidenza.update(v => v + 1);
   }
 
+  // Gestisce apertura chiusura modale dettaglio visita
   openNewVisita() {
     this.selectedVisita.set(null);
     this.isNewVisita.set(true);

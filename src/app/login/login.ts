@@ -22,24 +22,24 @@ export class Login {
     private router: Router,
     private fb: FormBuilder
   ) {
-    // Crea il form di login
     this.loginForm = this.fb.group({
       role: ['paziente'],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
 
-    // Crea il form di registrazione
     this.registerForm = this.fb.group({
       nome: ['', [Validators.required, Validators.minLength(2)]],
       cognome: ['', [Validators.required, Validators.minLength(2)]],
       role: ['paziente', Validators.required],
+      dataN: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required, Validators.minLength(6)]]
     });
   }
 
+  // Passa dalla modalità login alla modalità registrazione
   toggleMode() {
     this.isLoginMode.set(!this.isLoginMode());
     this.loginForm.reset({ role: 'paziente' });
@@ -62,7 +62,7 @@ export class Login {
 
   async register() {
     if (this.registerForm.valid) {
-      const { nome, cognome, role, email, password, confirmPassword } = this.registerForm.value;
+      const { nome, cognome, role, email, password, confirmPassword, dataN } = this.registerForm.value;
 
       if (password !== confirmPassword) {
         alert('Le password non coincidono');
@@ -70,7 +70,7 @@ export class Login {
       }
 
       this.isLoading.set(true);
-      const errRegister = await this.authService.register(nome, cognome, email, password, role);
+      const errRegister = await this.authService.register(nome, cognome, email, password, role, dataN);
       this.isLoading.set(false);
 
       if (!errRegister) {

@@ -6,13 +6,12 @@ var porta = 8081
 var expressSession = require("express-session")
 const { provideAppInitializer } = require("@angular/core")
 
-/* Questa callback viene richiamata quando avvio il server */
-/* rispetto alla listen del modulo http, questa è ASINCRONA */
-app.listen(porta, ()=>{
-    console.log("Il server è stato avviato sulla porta " + porta)
+// Avvia il server HTTP
+app.listen(porta, () => {
+  console.log("Server avviato sulla porta " + porta)
 })
 
-// Middleware CORS
+// Abilita CORS verso il client Angular
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', 'http://localhost:4200')
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
@@ -25,7 +24,6 @@ app.use((req, res, next) => {
     next()
 })
 
-// Middleware per parsare JSON
 app.use(express.json())
 
 app.use(expressSession({
@@ -35,7 +33,13 @@ app.use(expressSession({
     cookie: { secure: true }
 }))
 
-
+// Termina la sessione lato server
+app.post('/logout', (richiesta, risposta) => {
+  richiesta.session.destroy(() => {
+    risposta.send({ status: 'success' })
+  })
+})
+// Autentica un utente in base al ruolo selezionato
 app.post('/login', async (richiesta, risposta)=>{
   let data = richiesta.body
 
@@ -68,11 +72,9 @@ app.post('/login', async (richiesta, risposta)=>{
 
   if(data.password == pwd.password)
   {
-
     let user = await db.getUserById(role.campi, role.table, idUser)
     richiesta.session.userID = idUser
     user.role = role.role
-    //console.log(user)
     risposta.send({status: 'success', data: user})
 
   }
@@ -80,6 +82,100 @@ app.post('/login', async (richiesta, risposta)=>{
     risposta.send({status: 'failed', data: 'Password errata'})
 
 
+})
+
+// Registra un nuovo paziente
+app.post('/register', async (richiesta, risposta) => {
+  try {
+    const data = richiesta.body
+    const { nome, cognome, email, password, role, dataN } = data
+
+    if (!nome || !cognome || !email || !password || !dataN) {
+      return risposta.status(400).send({ status: 'failed', data: 'Dati mancanti per la registrazione' })
+    }
+
+    if (role !== 'paziente') {
+      return risposta.status(400).send({ status: 'failed', data: 'La registrazione è consentita solo per i pazienti' })
+    }
+
+    const userData = {
+      nome,
+      cognome,
+      mail: email,
+      password,
+      dataN,
+      indirizzo: ''
+    }
+
+    const result = await db.createUser(userData)
+    const newId = result.insertId
+
+    const user = await db.getUserById('id, nome, cognome, indirizzo, dataN, mail', 'user', newId)
+    user.role = 'paziente'
+
+    richiesta.session.userID = newId
+
+    risposta.send({ status: 'success', data: user })
+  } catch (error) {
+    console.error('Errore registrazione:', error)
+    if (error.code === 'ER_DUP_ENTRY') {
+      return risposta.status(400).send({ status: 'failed', data: 'Email già registrata' })
+    }
+    risposta.status(500).send({ status: 'failed', data: 'Errore durante la registrazione' })
+  }
+})
+
+app.post('/updateProfile', async (richiesta, risposta) => {
+  try {
+    const data = richiesta.body
+    const { id, role, nome, cognome, mail } = data
+
+    if (!id || !role) {
+      return risposta.status(400).send({ status: 'error', message: 'ID e ruolo sono obbligatori' })
+    }
+
+    let table = null
+
+    switch (role) {
+      case 'paziente':
+        table = 'user'
+        break
+      case 'medico':
+        table = 'dottori'
+        break
+      case 'admin':
+        table = 'admin'
+        break
+      default:
+        return risposta.status(400).send({ status: 'error', message: 'Ruolo non valido' })
+    }
+
+    const updates = {}
+    if (nome !== undefined) {
+      if (role === 'admin') {
+        updates.utente = nome
+      } else {
+        updates.nome = nome
+      }
+    }
+    if (cognome !== undefined && role !== 'admin') {
+      updates.cognome = cognome
+    }
+    if (mail !== undefined) {
+      updates.mail = mail
+    }
+
+    const result = await db.updateUserProfile(table, id, updates)
+
+    if (result.affectedRows && result.affectedRows > 0) {
+      risposta.send({ status: 'success' })
+    } else {
+      risposta.send({ status: 'failed', data: 'Nessuna modifica effettuata' })
+    }
+  } catch (error) {
+    console.error("Errore nell'aggiornamento del profilo:", error)
+    risposta.status(500).send({ status: 'error', message: 'Errore durante l\'aggiornamento del profilo' })
+  }
 })
 
 
@@ -90,7 +186,6 @@ app.post('/getVisiteByPaziente', async (richiesta, risposta)=>{
   let visite = await db.getVisiteByAnyId('idUser', idUser)
   let ris = await parseVisite(visite)
 
-  //console.log(ris)
   risposta.send({status: 'success', data: ris})
 })
 
@@ -101,7 +196,6 @@ app.post('/getVisiteByMedico', async (richiesta, risposta)=>{
   let visite = await db.getVisiteByAnyId('idMedico', idMedico)
 
   let ris = await parseVisite(visite)
-  //console.log(ris)
 
   risposta.send({status: 'success', data: ris})
 })
@@ -115,7 +209,6 @@ app.post('/getVisiteByReparto', async (richiesta, risposta)=>{
   let visite = await db.getVisiteByAnyId('idRep', idReparto[0].id)
 
   let ris = await parseVisite(visite)
-  //console.log(ris)
 
   risposta.send({status: 'success', data: ris})
 })
@@ -127,7 +220,6 @@ app.post('/getVisiteByPazienteNP', async (richiesta, risposta)=>{
   let visite = await db.getVisiteNonPagate(idUser)
 
   let ris = await parseVisite(visite)
-  console.log(ris)
 
   risposta.send({status: 'success', data: ris})
 })
@@ -221,7 +313,6 @@ app.post('/getSlotDisponibili', async (richiesta, risposta)=>{
 async function parseVisite(visite)
 {
   let ris = []
-  //console.log(visite)
   for(let i = 0; i < visite.length; i++)
   {
     let user = await db.getUserById('nome, cognome', 'user', visite[i].idUser)

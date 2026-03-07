@@ -14,7 +14,6 @@ export class User implements OnInit {
   user = signal<UserInterface | null>(null);
   isLoading = signal(false);
 
-  // Campi del form
   nome = signal('');
   cognome = signal('');
   email = signal('');
@@ -22,6 +21,7 @@ export class User implements OnInit {
 
   constructor(private authService: AuthService) {}
 
+  // Carica i dati dell'utente autenticato
   ngOnInit() {
     const currentUser = this.authService.getCurrentUser();
     if (currentUser) {
@@ -32,6 +32,7 @@ export class User implements OnInit {
     }
   }
 
+  // Abilita/disabilita la modalità modifica profilo
   toggleEdit() {
     this.isEditing.set(!this.isEditing());
     if (this.isEditing()) {
@@ -69,7 +70,6 @@ export class User implements OnInit {
 
   cancelEdit() {
     this.isEditing.set(false);
-    // Ripristina i valori originali
     const user = this.user();
     if (user) {
       this.nome.set(user.nome);

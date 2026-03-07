@@ -22,8 +22,8 @@ export interface Visita {
 })
 export class VisiteService {
   private readonly API_URL = 'http://localhost:8081';
-  visite = signal<Visita[]>([]);
 
+  // Restituisce tutte le visite di un paziente
   async getVisiteByPaziente(pazienteId: number): Promise<Visita[]> {
     try {
       const response = await fetch(`${this.API_URL}/getVisiteByPaziente`, {
@@ -34,7 +34,6 @@ export class VisiteService {
       });
 
       const data = await response.json();
-      console.log('Visite paziente:', data);
       if (data.status === 'success') {
         return data.data;
       }
@@ -44,6 +43,7 @@ export class VisiteService {
     return [];
   }
 
+  // Restituisce tutte le visite di un medico
   async getVisiteByMedico(medicoId: number): Promise<Visita[]> {
     try {
       const response = await fetch(`${this.API_URL}/getVisiteByMedico`, {
@@ -54,7 +54,6 @@ export class VisiteService {
       });
 
       const data = await response.json();
-      console.log('Visite medico:', data);
       if (data.status === 'success') {
         return data.data;
       }
@@ -64,6 +63,7 @@ export class VisiteService {
     return [];
   }
 
+  // Restituisce le visite filtrate per reparto
   async getVisiteByReparto(reparto: string): Promise<Visita[]> {
     try {
       const response = await fetch(`${this.API_URL}/getVisiteByReparto`, {
@@ -74,7 +74,6 @@ export class VisiteService {
       });
 
       const data = await response.json();
-      console.log('Visite reparto:', data);
       if (data.status === 'success') {
         return data.data;
       }
@@ -84,6 +83,7 @@ export class VisiteService {
     return [];
   }
 
+  // Restituisce le visite non pagate di un paziente
   async getVisitaNonPagate(pazienteId: number): Promise<Visita[]> {
     try {
       const response = await fetch(`${this.API_URL}/getVisiteByPazienteNP`, {
@@ -94,7 +94,6 @@ export class VisiteService {
       });
 
       const data = await response.json();
-      console.log('Visite non pagate:', data);
       if (data.status === 'success') {
         return data.data;
       }
@@ -104,6 +103,7 @@ export class VisiteService {
     return [];
   }
 
+  // Crea una nuova visita
   async createVisita(visita: Omit<Visita, 'idVis'>): Promise<boolean> {
     try {
       const response = await fetch(`${this.API_URL}/createVisita`, {
@@ -114,11 +114,7 @@ export class VisiteService {
       });
 
       const data = await response.json();
-      console.log('Create visita:', data);
       if (data.status === 'success') {
-        // Ricarica le visite del paziente per aggiornare il signal
-        const visite = await this.getVisiteByPaziente(visita.pazienteId);
-        this.visite.set(visite);
         return true;
       }
     } catch (error) {
@@ -127,6 +123,7 @@ export class VisiteService {
     return false;
   }
 
+  // Aggiorna una visita esistente
   async updateVisita(id: number, updates: Partial<Visita>): Promise<boolean> {
     try {
       const response = await fetch(`${this.API_URL}/updateVisita`, {
@@ -137,12 +134,7 @@ export class VisiteService {
       });
 
       const data = await response.json();
-      console.log('Update visita:', data);
       if (data.status === 'success') {
-        // Aggiorna il signal locale
-        this.visite.update(visite =>
-          visite.map(v => v.idVis === id ? { ...v, ...updates } : v)
-        );
         return true;
       }
     } catch (error) {
@@ -151,6 +143,7 @@ export class VisiteService {
     return false;
   }
 
+  // Elimina (logicamente) una visita
   async deleteVisita(id: number): Promise<boolean> {
     try {
       const response = await fetch(`${this.API_URL}/deleteVisita`, {
@@ -161,11 +154,7 @@ export class VisiteService {
       });
 
       const data = await response.json();
-      console.log('Delete visita:', data);
       if (data.status === 'success') {
-        this.visite.update(visite =>
-          visite.filter(v => v.idVis !== id)
-        );
         return true;
       }
     } catch (error) {
@@ -174,6 +163,7 @@ export class VisiteService {
     return false;
   }
 
+  // Segna una visita come pagata
   async pagaVisita(id: number): Promise<boolean> {
     try {
       const response = await fetch(`${this.API_URL}/pagaVisita`, {
@@ -184,11 +174,7 @@ export class VisiteService {
       });
 
       const data = await response.json();
-      console.log('Paga visita:', data);
       if (data.status === 'success') {
-        this.visite.update(visite =>
-          visite.map(v => v.idVis === id ? { ...v, pagata: true } : v)
-        );
         return true;
       }
     } catch (error) {
@@ -197,6 +183,7 @@ export class VisiteService {
     return false;
   }
 
+  // Restituisce i medici di un reparto
   async getMediciByReparto(reparto: string): Promise<any[]> {
     try {
       const response = await fetch(`${this.API_URL}/getMediciByReparto`, {
@@ -207,7 +194,6 @@ export class VisiteService {
       });
 
       const data = await response.json();
-      console.log('Medici reparto:', data);
       if (data.status === 'success') {
         return data.data;
       }
@@ -217,6 +203,7 @@ export class VisiteService {
     return [];
   }
 
+  // Restituisce l'elenco dei reparti
   async getTutiReparti(): Promise<string[]> {
     try {
       const response = await fetch(`${this.API_URL}/getAllReparti`, {
@@ -227,7 +214,6 @@ export class VisiteService {
       });
 
       const data = await response.json();
-      console.log('Reparti:', data);
       if (data.status === 'success') {
         return data.data;
       }
@@ -237,6 +223,7 @@ export class VisiteService {
     return [];
   }
 
+  // Restituisce gli slot orari liberi per un medico in una data
   async getSlotDisponibili(medicoId: number, data: string): Promise<number[]> {
     try {
       const response = await fetch(`${this.API_URL}/getSlotDisponibili`, {
@@ -247,7 +234,6 @@ export class VisiteService {
       });
 
       const result = await response.json();
-      console.log('Slot disponibili:', result);
       if (result.status === 'success') {
         return result.data;
       }

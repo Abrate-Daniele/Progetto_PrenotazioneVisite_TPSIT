@@ -37,22 +37,42 @@
     <div *ngIf="isEditing()">
       <div class="mb-3">
         <label class="form-label fw-bold">Nome</label>
-        <input type="text" class="form-control" [(ngModel)]="nome" />
+        <input 
+          type="text" 
+          class="form-control" 
+          [ngModel]="nome()" 
+          (ngModelChange)="nome.set($event)" 
+        />
       </div>
 
       <div class="mb-3">
         <label class="form-label fw-bold">Cognome</label>
-        <input type="text" class="form-control" [(ngModel)]="cognome" />
+        <input 
+          type="text" 
+          class="form-control" 
+          [ngModel]="cognome()" 
+          (ngModelChange)="cognome.set($event)" 
+        />
       </div>
 
       <div class="mb-3">
         <label class="form-label fw-bold">Email</label>
-        <input type="email" class="form-control" [(ngModel)]="email" />
+        <input 
+          type="email" 
+          class="form-control" 
+          [ngModel]="email()" 
+          (ngModelChange)="email.set($event)" 
+        />
       </div>
 
       <div class="mb-3">
         <label class="form-label fw-bold">Telefono</label>
-        <input type="text" class="form-control" [(ngModel)]="telefono" />
+        <input 
+          type="text" 
+          class="form-control" 
+          [ngModel]="telefono()" 
+          (ngModelChange)="telefono.set($event)" 
+        />
       </div>
 
       <button class="btn btn-success btn-sm me-2" (click)="saveChanges()">

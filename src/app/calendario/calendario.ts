@@ -18,7 +18,7 @@ export class Calendario implements OnInit {
   currentDate = signal(new Date());
   weekStart = computed(() => {
     const date = new Date(this.currentDate());
-    const day = (date.getDay() || 7) - 1; // 0 = lunedì, 6 = domenica
+    const day = (date.getDay() || 7) - 1;
     const diff = date.getDate() - day;
     return new Date(date.setDate(diff));
   });
@@ -32,18 +32,17 @@ export class Calendario implements OnInit {
     });
   });
 
-  hours = [9, 10, 11, 12, 13, 14, 15, 16]; // Orari 9:00-17:00 (8 slot da 1 ora)
+  hours = [9, 10, 11, 12, 13, 14, 15, 16];
 
   constructor(private visiteService: VisiteService, private authService: AuthService) {}
 
+  // Carica le visite della settimana per il ruolo corrente
   async ngOnInit() {
-    // Inizializza le visite basate sul ruolo dell'utente
     const user = this.authService.getCurrentUser();
     this.user = user;
     if (user?.role === 'paziente') {
       this.visite = await this.visiteService.getVisiteByPaziente(user.id);
     } else if (user?.role === 'medico') {
-      console.log(user)
       this.visite = await this.visiteService.getVisiteByMedico(user.id);
     }
   }
@@ -75,7 +74,6 @@ export class Calendario implements OnInit {
   }
 
   onVisitaClick(visita: Visita) {
-    console.log(visita)
     this.visitaClicked.emit(visita);
   }
 

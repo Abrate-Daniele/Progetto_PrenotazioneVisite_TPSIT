@@ -27,6 +27,7 @@ export class AuthService {
     user: null
   });
 
+  // Effettua il login e salva l'utente corrente nello stato
   async login(email: string, password: string, role: UserRole): Promise<boolean> {
     try {
       const response = await fetch(`${this.API_URL}/login`, {
@@ -37,48 +38,53 @@ export class AuthService {
       });
 
       const data = await response.json();
-      console.log('Login response:', data);
-      
       if (data.status === 'success') {
         this.authState.set({
           isAuthenticated: true,
           user: data.data
         });
-        return false; // Login riuscito
+        return false;
       }
-      return true; // Login fallito
+      return true;
     } catch (error) {
       console.error('Errore login:', error);
       return true;
     }
   }
 
-  async register(nome: string, cognome: string, email: string, password: string, role: UserRole): Promise<boolean> {
+  // Registra un nuovo paziente e lo autentica
+  async register(
+    nome: string,
+    cognome: string,
+    email: string,
+    password: string,
+    role: UserRole,
+    dataN: string
+  ): Promise<boolean> {
     try {
       const response = await fetch(`${this.API_URL}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ nome, cognome, email, password, role })
+        body: JSON.stringify({ nome, cognome, email, password, role, dataN })
       });
 
       const data = await response.json();
-      console.log('Register response:', data);
-      
       if (data.status === 'success') {
         this.authState.set({
           isAuthenticated: true,
           user: data.data
         });
-        return false; // Registrazione riuscita
+        return false;
       }
-      return true; // Registrazione fallita
+      return true;
     } catch (error) {
       console.error('Errore registrazione:', error);
       return true;
     }
   }
 
+  // Esegue il logout e pulisce lo stato locale
   async logout(): Promise<void> {
     try {
       await fetch(`${this.API_URL}/logout`, {
@@ -104,12 +110,14 @@ export class AuthService {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ id: currentState.user.id, ...updates })
+        body: JSON.stringify({ 
+          id: currentState.user.id, 
+          role: currentState.user.role,
+          ...updates 
+        })
       });
 
       const data = await response.json();
-      console.log('Update profile response:', data);
-      
       if (data.status === 'success') {
         this.authState.set({
           ...currentState,

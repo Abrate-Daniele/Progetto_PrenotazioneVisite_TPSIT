@@ -1,4 +1,4 @@
-import { Component, signal, OnInit, effect, Output, EventEmitter } from '@angular/core';
+import { Component, signal, OnInit, effect, Output, EventEmitter, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Visita, VisiteService } from '../services/visite.service';
 import { AuthService } from '../services/auth.service';
@@ -13,11 +13,19 @@ export class VisiteEvidenza implements OnInit {
   @Output() updateVisite = new EventEmitter<void>();
   visiteDaPagare = signal<Visita[]>([]);
 
+  private reloadSignal = signal(0);
+
+  @Input() set reloadToken(value: number) {
+    this.reloadSignal.set(value);
+  }
+
   constructor(
     private visiteService: VisiteService,
     private authService: AuthService
   ) {
+    // Quando cambia il token o l'utente, ricarica le visite non pagate
     effect(async () => {
+      const _ = this.reloadSignal();
       const user = this.authService.getCurrentUser();
       if (user?.role === 'paziente') {
         const visite = await this.visiteService.getVisitaNonPagate(user.id);
@@ -26,13 +34,8 @@ export class VisiteEvidenza implements OnInit {
     });
   }
 
-  async ngOnInit() {
-    const user = this.authService.getCurrentUser();
-    if (user?.role === 'paziente') {
-      const visite = await this.visiteService.getVisitaNonPagate(user.id);
-      this.visiteDaPagare.set(visite);
-    }
-  }
+  // Mostra le visite non pagate e permette il pagamento rapido
+  async ngOnInit() {}
 
   async pagaVisita(visita: Visita) {
     if (confirm(`Vuoi pagare € ${visita.importo} per la visita del ${this.formatDate(visita.data)}?`)) {

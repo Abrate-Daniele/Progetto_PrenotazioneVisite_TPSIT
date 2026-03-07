@@ -105,13 +105,20 @@
               }
           </div>
 
+          <!-- Data di nascita -->
+          <div class="mb-3">
+            <label class="form-label fw-bold">Data di nascita</label>
+            <input
+              type="date"
+              class="form-control"
+              formControlName="dataN" />
+          </div>
+
           <!-- Ruolo -->
           <div class="mb-3">
             <label class="form-label fw-bold">Ruolo</label>
             <select class="form-select" formControlName="role">
               <option value="paziente">Paziente</option>
-              <option value="medico">Medico</option>
-              <option value="admin">Admin</option>
             </select>
           </div>
 

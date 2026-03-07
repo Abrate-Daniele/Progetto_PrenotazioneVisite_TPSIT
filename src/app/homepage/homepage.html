@@ -35,7 +35,10 @@
       <!-- Sezione Visite in Evidenza -->
       <div class="row mb-4">
         <div class="col-md-12">
-          <app-visite-evidenza (updateVisite)="updateVisite()"></app-visite-evidenza>
+          <app-visite-evidenza 
+            (updateVisite)="updateVisite()"
+            [reloadToken]="reloadVisiteEvidenza()">
+          </app-visite-evidenza>
         </div>
       </div>
     </div>

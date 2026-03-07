@@ -9,6 +9,7 @@ var connection = mysql.createConnection({
 
 connection.connect();
 
+// Esegue una query MySQL e restituisce una Promise con i risultati
 async function eseguiQuery(query){
     return new Promise((risolta, respinta)=>{
         connection.query(query,
@@ -21,6 +22,7 @@ async function eseguiQuery(query){
     })
 }
 
+// Ritorna l'id utente dato l'email e la tabella (user/dottori/admin)
 async function getUserByMail(mail, table) {
   let query = `SELECT id FROM ${table} WHERE mail = '${mail}' `
   let ris = await eseguiQuery(query)
@@ -28,6 +30,7 @@ async function getUserByMail(mail, table) {
   return ris[0]?.id
 }
 
+// Ritorna i campi richiesti per un utente dato l'id
 async function getUserById(campi, table, id) {
   let query = `SELECT ${campi} FROM ${table} WHERE id = ${id}`
   let ris = await eseguiQuery(query)
@@ -35,6 +38,48 @@ async function getUserById(campi, table, id) {
   return ris[0]
 }
 
+// Crea un nuovo record nella tabella USER
+async function createUser(user) {
+  const query = `INSERT INTO user (nome, cognome, dataN, indirizzo, mail, password)
+                 VALUES (${mysql.escape(user.nome)},
+                         ${mysql.escape(user.cognome)},
+                         ${mysql.escape(user.dataN)},
+                         ${mysql.escape(user.indirizzo)},
+                         ${mysql.escape(user.mail)},
+                         ${mysql.escape(user.password)})`
+
+  let ris = await eseguiQuery(query)
+  return ris
+}
+
+// Aggiorna i campi base del profilo (nome, cognome, mail/utente)
+async function updateUserProfile(table, id, updates) {
+  let setClauses = []
+
+  if (updates.nome !== undefined) {
+    setClauses.push(`nome = ${mysql.escape(updates.nome)}`)
+  }
+  if (updates.cognome !== undefined) {
+    setClauses.push(`cognome = ${mysql.escape(updates.cognome)}`)
+  }
+  if (updates.mail !== undefined) {
+    setClauses.push(`mail = ${mysql.escape(updates.mail)}`)
+  }
+  if (updates.utente !== undefined) {
+    setClauses.push(`utente = ${mysql.escape(updates.utente)}`)
+  }
+
+  if (!setClauses.length) {
+    throw new Error('Nessun campo da aggiornare')
+  }
+
+  const query = `UPDATE ${table} SET ${setClauses.join(', ')} WHERE id = ${mysql.escape(id)}`
+
+  let ris = await eseguiQuery(query)
+  return ris
+}
+
+// Restituisce le visite filtrate per un campo (idUser, idMedico, idRep, ...)
 async function getVisiteByAnyId(campo, valore) {
   let query = `SELECT idVis, DATE_FORMAT(data, '%Y-%m-%d') AS data, ora, idUser, idMedico, idRep, pagata, stato, note FROM visite WHERE ${campo} = ${valore} AND stato != 'D'`
 
@@ -43,6 +88,7 @@ async function getVisiteByAnyId(campo, valore) {
   return ris
 }
 
+// Restituisce l'id del reparto dato il nome
 async function getIdRepartoByNome(nome) {
   let query = `SELECT id FROM reparti WHERE nomeRep = '${nome}'`
 
@@ -51,6 +97,7 @@ async function getIdRepartoByNome(nome) {
   return ris
 }
 
+// Restituisce tutti i medici di un reparto
 async function getMediciByIdRep(idRep) {
   let query = `SELECT id, nome, cognome FROM dottori WHERE idRep = ${idRep}`
 
@@ -59,6 +106,7 @@ async function getMediciByIdRep(idRep) {
   return ris
 }
 
+// Restituisce tutti i reparti
 async function getAllReparti() {
   let query = `SELECT id, nomeRep FROM reparti`
 
@@ -67,6 +115,7 @@ async function getAllReparti() {
   return ris
 }
 
+// Restituisce le visite non pagate di un paziente
 async function getVisiteNonPagate(pazienteId) {
   let query = `SELECT idVis, DATE_FORMAT(data, '%Y-%m-%d') AS data, ora, idUser, idMedico, idRep, pagata, stato, note FROM visite WHERE idUser = ${pazienteId} AND pagata = FALSE AND stato != 'D'`
 
@@ -75,6 +124,7 @@ async function getVisiteNonPagate(pazienteId) {
   return ris
 }
 
+// Restituisce gli orari occupati di un medico in una data
 async function getVisiteByMedicoEData(medicoId, data) {
   let query = `SELECT ora FROM visite WHERE idMedico = ${medicoId} AND data = '${data}' AND stato != 'D'`
 
@@ -83,21 +133,19 @@ async function getVisiteByMedicoEData(medicoId, data) {
   return ris
 }
 
+// Crea una nuova visita nel database
 async function createVisita(visita) {
   try {
-    // Validazione dei dati obbligatori
     if (!visita.data || visita.ora === undefined || !visita.pazienteId || !visita.medicoId || !visita.reparto) {
       throw new Error('Dati mancanti: data, ora, pazienteId, medicoId e reparto sono obbligatori');
     }
 
-    // Ottieni l'idRep dal nome del reparto
     const repartiResult = await eseguiQuery(`SELECT id FROM reparti WHERE nomeRep = ${mysql.escape(visita.reparto)}`);
     if (!repartiResult.length) {
       throw new Error('Reparto non trovato');
     }
     const idRep = repartiResult[0].id;
 
-    // Inserisce la nuova visita (senza colonne derivate che sono calcolate dal client)
     const query = `INSERT INTO visite (data, ora, idUser, idMedico, idRep, stato, pagata, note)
                    VALUES (${mysql.escape(visita.data)}, ${mysql.escape(visita.ora)},
                            ${mysql.escape(visita.pazienteId)}, ${mysql.escape(visita.medicoId)},
@@ -112,28 +160,26 @@ async function createVisita(visita) {
   }
 }
 
+// Aggiorna i campi di una visita esistente
 async function updateVisita(id, updates) {
   try {
-    // Validazione: l'id deve essere un numero
     if (!id || isNaN(id)) {
       throw new Error('ID visita non valido');
     }
 
-    // Campi mappati da client a database
     const fieldMap = {
       'data': 'data',
       'ora': 'ora',
       'note': 'note',
       'stato': 'stato',
       'pagata': 'pagata',
-      'reparto': null, // Gestito separatamente
+      'reparto': null,
     };
 
     let setClauses = [];
 
     for (const [key, value] of Object.entries(updates)) {
       if (key === 'reparto') {
-        // Se cambia il reparto, aggiorna anche l'idRep
         const repartiResult = await eseguiQuery(`SELECT id FROM reparti WHERE nomeRep = ${mysql.escape(value)}`);
         if (repartiResult.length) {
           setClauses.push(`idRep = ${repartiResult[0].id}`);
@@ -152,7 +198,6 @@ async function updateVisita(id, updates) {
           setClauses.push(`${dbField} = ${mysql.escape(value)}`);
         }
       }
-      // Ignora i campi che non sono nel fieldMap (come medicoNome, pazienteCognome, etc.)
     }
 
     if (!setClauses.length) {
@@ -169,14 +214,13 @@ async function updateVisita(id, updates) {
   }
 }
 
+// Marca una visita come cancellata (soft delete)
 async function deleteVisita(id) {
   try {
-    // Validazione: l'id deve essere un numero
     if (!id || isNaN(id)) {
       throw new Error('ID visita non valido');
     }
 
-    // Soft delete: marca la visita come cancellata con stato 'C'
     const query = `UPDATE visite SET stato = 'D' WHERE idVis = ${mysql.escape(id)}`;
 
     let ris = await eseguiQuery(query);
@@ -187,9 +231,9 @@ async function deleteVisita(id) {
   }
 }
 
+// Segna una visita come pagata
 async function pagaVisita(id) {
   try {
-    // Validazione: l'id deve essere un numero
     if (!id || isNaN(id)) {
       throw new Error('ID visita non valido');
     }
@@ -205,23 +249,20 @@ async function pagaVisita(id) {
   }
 }
 
+// Restituisce gli slot orari liberi per un medico in una certa data
 async function getSlotDisponibili(medicoId, data) {
   try {
-    // Validazione dei dati
     if (!medicoId || !data || isNaN(medicoId)) {
       throw new Error('medicoId e data sono obbligatori');
     }
 
-    // Ottieni gli slot già prenotati per questo medico in questa data
     const oreOcc = await eseguiQuery(
       `SELECT ora FROM visite WHERE idMedico = ${mysql.escape(medicoId)}
        AND data = ${mysql.escape(data)} AND stato != 'D'`
     );
 
-    // Tutti gli slot orari disponibili
     const allSlots = [0, 1, 2, 3, 4, 5, 6, 7];
 
-    // Filtra gli slot disponibili (quelli non prenotati)
     const slotsDisponibili = allSlots.filter(slot =>
       !oreOcc.some(occ => occ.ora === slot)
     );
@@ -235,4 +276,20 @@ async function getSlotDisponibili(medicoId, data) {
 
 
 
-module.exports = {getUserByMail, getUserById, getVisiteByAnyId, getIdRepartoByNome, getMediciByIdRep, getAllReparti, getVisiteNonPagate, createVisita, updateVisita, deleteVisita, pagaVisita, getVisiteByMedicoEData, getSlotDisponibili}
+module.exports = {
+  getUserByMail,
+  getUserById,
+  getVisiteByAnyId,
+  getIdRepartoByNome,
+  getMediciByIdRep,
+  getAllReparti,
+  getVisiteNonPagate,
+  createVisita,
+  updateVisita,
+  deleteVisita,
+  pagaVisita,
+  getVisiteByMedicoEData,
+  getSlotDisponibili,
+  createUser,
+  updateUserProfile
+}
